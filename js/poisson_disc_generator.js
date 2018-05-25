@@ -10,7 +10,8 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
 
   const grid = [];
   const points = [];
-  const firstPointsArr = [];
+  let numPoints = 0;
+  const activePoints = [];
 
   let rowIdx;
   let colIdx;
@@ -35,12 +36,12 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
   function insert(point) {
     points.push(point);
     const dotRadius = calculateDotRadius(point);
-    // debugger
     context.beginPath();
     context.arc(point[0], point[1], dotRadius, 0, 2*Math.PI);
     context.fill();
     [rowIdx, colIdx] = pointToGridCoords(point);
     grid[rowIdx][colIdx] = point;
+    numPoints += 1;
   }
 
   function drawLine(newPoint, prevPoint) {
@@ -81,7 +82,7 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
   }
 
   const p0 = [Math.round(Math.random() * canvasWidth), Math.round(Math.random() * canvasHeight)];
-  firstPointsArr.push(p0);
+  activePoints.push(p0);
   insert(p0);
 
   let refIdx;
@@ -91,9 +92,8 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
   let candidatePoint;
   let theta;
   let dist;
-
-  function drawNextPoint(activePoints) {
-    if (activePoints.length === 0) { return; }
+  let numDots = 0;
+  while (activePoints.length > 0) {
     refIdx = Math.floor(Math.random() * activePoints.length);
     refPoint = activePoints[refIdx];
     candidateMaxReached = true;
@@ -105,44 +105,15 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
       if (isValidPoint(candidatePoint)) {
         insert(candidatePoint);
         drawLine(candidatePoint, refPoint);
+        numDots += 1;
         activePoints.push(candidatePoint);
         candidateMaxReached = false;
         break;
       }
     }
-    let newPoints;
-    setTimeout( () => {
-      if (candidateMaxReached) {
-        newPoints = activePoints.slice(0, refIdx).concat(activePoints.slice(refIdx + 1));
-      } else {
-        newPoints = activePoints.slice(0);
-      }
-      drawNextPoint(newPoints);
-    }, 0)
+    if (candidateMaxReached) {
+      activePoints.splice(refIdx, 1);
+    }
   }
-  //
-  drawNextPoint(firstPointsArr);
-  // while (activePoints.length > 0) {
-  //   refIdx = Math.floor(Math.random() * activePoints.length);
-  //   refPoint = activePoints[refIdx];
-  //   candidateMaxReached = true;
-  //   for (numCandidates = 0; numCandidates <= maxCandidates; numCandidates++) {
-  //     theta = Math.random() * 360;
-  //     dist = (Math.random()*radius + radius);
-  //     candidatePoint = [dist * Math.cos(theta) + refPoint[0],
-  //                       dist * Math.sin(theta) + refPoint[1]];
-  //     if (isValidPoint(candidatePoint)) {
-  //       insert(candidatePoint);
-  //       drawLine(candidatePoint, refPoint);
-  //       activePoints.push(candidatePoint);
-  //       candidateMaxReached = false;
-  //       break;
-  //     }
-  //   }
-  //   if (candidateMaxReached) {
-  //     activePoints.splice(refIdx, 1);
-  //   }
-  // }
-
-  // return grid;
+  return points;
 }

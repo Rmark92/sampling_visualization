@@ -1,0 +1,31 @@
+
+// function drawNextPoint(activePoints) {
+//   if (activePoints.length === 0) { return; }
+//   refIdx = Math.floor(Math.random() * activePoints.length);
+//   refPoint = activePoints[refIdx];
+//   candidateMaxReached = true;
+//   for (numCandidates = 0; numCandidates <= maxCandidates; numCandidates++) {
+//     theta = Math.random() * 360;
+//     dist = (Math.random()*radius + radius);
+//     candidatePoint = [dist * Math.cos(theta) + refPoint[0],
+//                       dist * Math.sin(theta) + refPoint[1]];
+//     if (isValidPoint(candidatePoint)) {
+//       insert(candidatePoint);
+//       drawLine(candidatePoint, refPoint);
+//       activePoints.push(candidatePoint);
+//       candidateMaxReached = false;
+//       break;
+//     }
+//   }
+//   let newPoints;
+//   setTimeout( () => {
+//     if (candidateMaxReached) {
+//       newPoints = activePoints.slice(0, refIdx).concat(activePoints.slice(refIdx + 1));
+//     } else {
+//       newPoints = activePoints.slice(0);
+//     }
+//     drawNextPoint(newPoints);
+//   }, 0)
+// }
+// //
+// drawNextPoint(firstPointsArr);
