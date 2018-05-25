@@ -1,9 +1,4 @@
-export default function generatePoissonSample(imageCanvas, canvas, canvas2, radius, maxCandidates) {
-  const canvasHeight = canvas.height;
-  const canvasWidth = canvas.width;
-  const context = canvas.getContext("2d");
-  const context2 = canvas2.getContext("2d");
-  const imageCanvasContext = imageCanvas.getContext("2d");
+export default function generatePoissonSample(canvasHeight, canvasWidth, radius, maxCandidates, drawFunc) {
   const cellSize = Math.floor(radius / Math.sqrt(2));
   const gridHeight = Math.ceil(canvasHeight / cellSize) + 1;
   const gridWidth = Math.ceil(canvasWidth / cellSize) + 1;
@@ -25,31 +20,14 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
     return [rowIdx, colIdx];
   }
 
-  function calculateDotRadius(point) {
-    const pixelData = imageCanvasContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
-    const grayScaleVal = pixelData.reduce((memo, val) => memo + val, 0) / 3;
-    const dotRadius = ((300 - grayScaleVal) / 300) * (radius / 2);
-    // debugger
-    return dotRadius;
-  }
-
-  function insert(point) {
-    points.push(point);
-    const dotRadius = calculateDotRadius(point);
-    context.beginPath();
-    context.arc(point[0], point[1], dotRadius, 0, 2*Math.PI);
-    context.fill();
-    [rowIdx, colIdx] = pointToGridCoords(point);
-    grid[rowIdx][colIdx] = point;
+  function insert(newPoint, prevPoint) {
+    points.push(newPoint);
+    drawFunc(newPoint, prevPoint);
+    [rowIdx, colIdx] = pointToGridCoords(newPoint);
+    grid[rowIdx][colIdx] = newPoint;
     numPoints += 1;
   }
 
-  function drawLine(newPoint, prevPoint) {
-    context2.beginPath();
-    context2.moveTo(prevPoint[0], prevPoint[1]);
-    context2.lineTo(newPoint[0],newPoint[1]);
-    context2.stroke();
-  }
 
   function distance(pointA, pointB) {
     const squaredDist = Math.pow((pointA[0] - pointB[0]), 2) + Math.pow((pointA[1] - pointB[1]), 2)
@@ -92,7 +70,6 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
   let candidatePoint;
   let theta;
   let dist;
-  let numDots = 0;
   while (activePoints.length > 0) {
     refIdx = Math.floor(Math.random() * activePoints.length);
     refPoint = activePoints[refIdx];
@@ -103,9 +80,7 @@ export default function generatePoissonSample(imageCanvas, canvas, canvas2, radi
       candidatePoint = [dist * Math.cos(theta) + refPoint[0],
                         dist * Math.sin(theta) + refPoint[1]];
       if (isValidPoint(candidatePoint)) {
-        insert(candidatePoint);
-        drawLine(candidatePoint, refPoint);
-        numDots += 1;
+        insert(candidatePoint, refPoint);
         activePoints.push(candidatePoint);
         candidateMaxReached = false;
         break;
