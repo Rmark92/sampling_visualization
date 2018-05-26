@@ -11,6 +11,7 @@ export default class poissonSample {
     this.points = [];
     this.numPoints = 0;
     this.activePoints = [];
+    // this.steps = [];
   }
 
   initGrid() {

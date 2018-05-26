@@ -1,4 +1,5 @@
 import PoissonSample from './poisson_disc_generator';
+import BestCandidateSample from './best_candidate_disc_generator';
 import UniformRandomSample from './random_disc_generator';
 import UniformSample from './uniform_disc_generator';
 import * as d3 from "d3";
@@ -8,6 +9,9 @@ export default function renderImages(img) {
   const poissonCanvasStippling = document.getElementById("poisson-canvas-stippling");
   const poissonCanvasMap = document.getElementById("poisson-canvas-map");
   const poissonCanvasVoronoi = document.getElementById("poisson-canvas-voronoi");
+  const bestCandCanvasStippling = document.getElementById("bestcand-canvas-stippling");
+  const bestCandCanvasVoronoi = document.getElementById("bestcand-canvas-voronoi");
+  const bestCandCanvasMap = document.getElementById("bestcand-canvas-map");
   const randomCanvasStippling = document.getElementById("random-canvas-stippling");
   const randomCanvasVoronoi = document.getElementById("random-canvas-voronoi");
   const uniformCanvasStippling = document.getElementById("uniform-canvas-stippling");
@@ -83,7 +87,7 @@ export default function renderImages(img) {
     context.closePath();
     context.fill();
 
-    setTimeout( () => drawNextPolygon(vertices.slice(1), allPolyLines.slice(1), context), 1);
+    setTimeout( () => drawNextPolygon(vertices.slice(1), allPolyLines.slice(1), context), 10);
   }
 
   function drawVoronoi(points, context) {
@@ -101,13 +105,23 @@ export default function renderImages(img) {
   const poissonCanvasVoronoiCtx = poissonCanvasVoronoi.getContext('2d');
   const poisson = new PoissonSample(height, width, 3, 30);
   const poissonPoints = poisson.load();
+  const bestCandidate = new BestCandidateSample(height, width, poissonPoints.length, 20);
+  const bestCandidatePoints = bestCandidate.load();
   const random = new UniformRandomSample(height, width, poissonPoints.length);
   const randomPoints = random.load();
   const uniform = new UniformSample(height, width, 3 * (3/2));
   const uniformPoints = uniform.load();
   drawNextStipplingPoint(poissonPoints, poissonCanvasStipplingCtx);
-  drawNextMapLine(poissonPoints, poissonCanvasMapCtx);
   drawVoronoi(poissonPoints.map( point => point.coords), poissonCanvasVoronoiCtx);
+  drawNextMapLine(poissonPoints, poissonCanvasMapCtx, 2);
+
+  const bestCandCanvasStipplingCtx = bestCandCanvasStippling.getContext('2d');
+  const bestCandCanvasVoronoiCtx = bestCandCanvasVoronoi.getContext('2d');
+  const bestCandCanvasMapCtx = bestCandCanvasMap.getContext('2d');
+
+  drawNextStipplingPoint(bestCandidatePoints, bestCandCanvasStipplingCtx);
+  drawVoronoi(bestCandidatePoints.map(point => point.coords), bestCandCanvasVoronoiCtx);
+  drawNextMapLine(bestCandidatePoints, bestCandCanvasMapCtx, 1);
 
   const uniformCanvasStipplingCtx = uniformCanvasStippling.getContext('2d');
   const uniformCanvasVoronoiCtx = uniformCanvasVoronoi.getContext('2d');
@@ -123,10 +137,10 @@ export default function renderImages(img) {
   function drawNextStipplingPoint(points, context) {
     if (points.length === 0) { return; }
     drawPoint(points[0].coords, context);
-    setTimeout( () => drawNextStipplingPoint(points.slice(1), context), 1);
+    setTimeout( () => drawNextStipplingPoint(points.slice(1), context), 10);
   }
 
-  function drawNextMapLine(points, context) {
+  function drawNextMapLine(points, context, lineWidth) {
     if (points.length === 0) {
        return;
     } else if (points[0].refCoords) {
@@ -135,10 +149,10 @@ export default function renderImages(img) {
       context.beginPath();
       context.moveTo(prevPoint[0], prevPoint[1]);
       context.lineTo(newPoint[0],newPoint[1]);
-      context.lineWidth=2;
+      context.lineWidth=lineWidth;
       fillLine(context, prevPoint, newPoint);
     }
-    setTimeout( () => drawNextMapLine(points.slice(1), context), 1);
+    setTimeout( () => drawNextMapLine(points.slice(1), context, lineWidth), 10);
   }
 }
 

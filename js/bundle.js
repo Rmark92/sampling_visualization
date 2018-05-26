@@ -9546,7 +9546,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 document.addEventListener("DOMContentLoaded", function () {
   var img = new Image();
-  img.src = 'starry_night.jpg';
+  img.src = 'images/AyyyLmao.jpg';
   img.onload = function () {
     (0, _image_renderer2.default)(img);
   };
@@ -9567,6 +9567,10 @@ exports.default = renderImages;
 var _poisson_disc_generator = __webpack_require__(175);
 
 var _poisson_disc_generator2 = _interopRequireDefault(_poisson_disc_generator);
+
+var _best_candidate_disc_generator = __webpack_require__(510);
+
+var _best_candidate_disc_generator2 = _interopRequireDefault(_best_candidate_disc_generator);
 
 var _random_disc_generator = __webpack_require__(176);
 
@@ -9591,6 +9595,9 @@ function renderImages(img) {
   var poissonCanvasStippling = document.getElementById("poisson-canvas-stippling");
   var poissonCanvasMap = document.getElementById("poisson-canvas-map");
   var poissonCanvasVoronoi = document.getElementById("poisson-canvas-voronoi");
+  var bestCandCanvasStippling = document.getElementById("bestcand-canvas-stippling");
+  var bestCandCanvasVoronoi = document.getElementById("bestcand-canvas-voronoi");
+  var bestCandCanvasMap = document.getElementById("bestcand-canvas-map");
   var randomCanvasStippling = document.getElementById("random-canvas-stippling");
   var randomCanvasVoronoi = document.getElementById("random-canvas-voronoi");
   var uniformCanvasStippling = document.getElementById("uniform-canvas-stippling");
@@ -9666,7 +9673,7 @@ function renderImages(img) {
 
     setTimeout(function () {
       return drawNextPolygon(vertices.slice(1), allPolyLines.slice(1), context);
-    }, 1);
+    }, 10);
   }
 
   function drawVoronoi(points, context) {
@@ -9684,15 +9691,27 @@ function renderImages(img) {
   var poissonCanvasVoronoiCtx = poissonCanvasVoronoi.getContext('2d');
   var poisson = new _poisson_disc_generator2.default(height, width, 3, 30);
   var poissonPoints = poisson.load();
+  var bestCandidate = new _best_candidate_disc_generator2.default(height, width, poissonPoints.length, 20);
+  var bestCandidatePoints = bestCandidate.load();
   var random = new _random_disc_generator2.default(height, width, poissonPoints.length);
   var randomPoints = random.load();
   var uniform = new _uniform_disc_generator2.default(height, width, 3 * (3 / 2));
   var uniformPoints = uniform.load();
   drawNextStipplingPoint(poissonPoints, poissonCanvasStipplingCtx);
-  drawNextMapLine(poissonPoints, poissonCanvasMapCtx);
   drawVoronoi(poissonPoints.map(function (point) {
     return point.coords;
   }), poissonCanvasVoronoiCtx);
+  drawNextMapLine(poissonPoints, poissonCanvasMapCtx, 2);
+
+  var bestCandCanvasStipplingCtx = bestCandCanvasStippling.getContext('2d');
+  var bestCandCanvasVoronoiCtx = bestCandCanvasVoronoi.getContext('2d');
+  var bestCandCanvasMapCtx = bestCandCanvasMap.getContext('2d');
+
+  drawNextStipplingPoint(bestCandidatePoints, bestCandCanvasStipplingCtx);
+  drawVoronoi(bestCandidatePoints.map(function (point) {
+    return point.coords;
+  }), bestCandCanvasVoronoiCtx);
+  drawNextMapLine(bestCandidatePoints, bestCandCanvasMapCtx, 1);
 
   var uniformCanvasStipplingCtx = uniformCanvasStippling.getContext('2d');
   var uniformCanvasVoronoiCtx = uniformCanvasVoronoi.getContext('2d');
@@ -9715,10 +9734,10 @@ function renderImages(img) {
     drawPoint(points[0].coords, context);
     setTimeout(function () {
       return drawNextStipplingPoint(points.slice(1), context);
-    }, 1);
+    }, 10);
   }
 
-  function drawNextMapLine(points, context) {
+  function drawNextMapLine(points, context, lineWidth) {
     if (points.length === 0) {
       return;
     } else if (points[0].refCoords) {
@@ -9727,12 +9746,12 @@ function renderImages(img) {
       context.beginPath();
       context.moveTo(prevPoint[0], prevPoint[1]);
       context.lineTo(newPoint[0], newPoint[1]);
-      context.lineWidth = 2;
+      context.lineWidth = lineWidth;
       fillLine(context, prevPoint, newPoint);
     }
     setTimeout(function () {
-      return drawNextMapLine(points.slice(1), context);
-    }, 1);
+      return drawNextMapLine(points.slice(1), context, lineWidth);
+    }, 10);
   }
 }
 
@@ -9841,6 +9860,7 @@ var poissonSample = function () {
     this.points = [];
     this.numPoints = 0;
     this.activePoints = [];
+    // this.steps = [];
   }
 
   _createClass(poissonSample, [{
@@ -24903,6 +24923,104 @@ function nopropagation() {
   __WEBPACK_IMPORTED_MODULE_0_d3_selection__["e" /* event */].stopImmediatePropagation();
 });
 
+
+/***/ }),
+/* 510 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _d = __webpack_require__(178);
+
+var d3 = _interopRequireWildcard(_d);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BestCandidateSample = function () {
+  function BestCandidateSample(canvasHeight, canvasWidth, numDots, numCandidates) {
+    _classCallCheck(this, BestCandidateSample);
+
+    this.canvasHeight = canvasHeight;
+    this.canvasWidth = canvasWidth;
+    this.numDots = numDots;
+    this.numCandidates = numCandidates;
+    this.points = [];
+    this.quadTree = d3.quadtree();
+    this.quadTree.extent([0, 0], [canvasWidth, canvasHeight]);
+  }
+
+  _createClass(BestCandidateSample, [{
+    key: "distance",
+    value: function distance(pointA, pointB) {
+      var squaredDist = Math.pow(pointA[0] - pointB[0], 2) + Math.pow(pointA[1] - pointB[1], 2);
+      return Math.sqrt(squaredDist);
+    }
+  }, {
+    key: "generateRandomPoint",
+    value: function generateRandomPoint() {
+      return { coords: [Math.random() * this.canvasWidth, Math.random() * this.canvasHeight] };
+    }
+  }, {
+    key: "findBestCandidate",
+    value: function findBestCandidate() {
+      var candidateCount = void 0;
+      var point = void 0;
+      var nearestNeighbor = void 0;
+      var distance = void 0;
+      var bestDistance = 0;
+      var bestPoint = void 0;
+
+      for (candidateCount = 1; candidateCount <= this.numCandidates; candidateCount++) {
+        var _quadTree;
+
+        point = this.generateRandomPoint();
+        nearestNeighbor = (_quadTree = this.quadTree).find.apply(_quadTree, _toConsumableArray(point.coords));
+        distance = this.distance(nearestNeighbor, point.coords);
+        if (distance > bestDistance) {
+          bestDistance = distance;
+          point.refCoords = nearestNeighbor;
+          bestPoint = point;
+        }
+      }
+      return bestPoint;
+    }
+  }, {
+    key: "insert",
+    value: function insert(point) {
+      this.points.push(point);
+      this.quadTree.add(point.coords);
+    }
+  }, {
+    key: "load",
+    value: function load() {
+      var p0 = this.generateRandomPoint();
+      this.insert(p0);
+
+      var bestCandidate = void 0;
+      while (this.points.length < this.numDots) {
+        bestCandidate = this.findBestCandidate();
+        this.insert(bestCandidate);
+      }
+
+      return this.points;
+    }
+  }]);
+
+  return BestCandidateSample;
+}();
+
+exports.default = BestCandidateSample;
 
 /***/ })
 /******/ ]);
