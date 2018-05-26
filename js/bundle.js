@@ -9546,7 +9546,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 document.addEventListener("DOMContentLoaded", function () {
   var img = new Image();
-  img.src = 'starry_night.jpg';
+  img.src = 'images/the_zuck.jpg';
   img.onload = function () {
     (0, _image_renderer2.default)(img);
   };
@@ -9601,7 +9601,7 @@ function renderImages(img) {
     var grayScaleVal = pixelData.reduce(function (memo, val) {
       return memo + val;
     }, 0) / 3;
-    var dotRadius = (300 - grayScaleVal) / 300 * (radius / 2);
+    var dotRadius = (255 - grayScaleVal) / 255 * (radius / 2);
     context.beginPath();
     context.arc(point[0], point[1], dotRadius, 0, 2 * Math.PI);
     context.fill();
@@ -9620,100 +9620,142 @@ function renderImages(img) {
     context.strokeStyle = gradient;
     context.stroke();
   }
+  //
+  // function initVoronoi() {
+  //   const voronoi = d3.voronoi();
+  //   voronoi.extent([[0, 0], [poissonVoronoi.height, poissonVoronoi.width]]);
+  //   const voronoiCtx = poissonVoronoi.getContext('2d');
+  //   const voronoiPoints = [];
+  //   let polyLines;
+  //   return (newPoint) => {
+  //     // debugger;
+  //     voronoiPoints.push(newPoint);
+  //     if (voronoiPoints.length % 100 === 0) {
+  //         polyLines = voronoi.polygons(voronoiPoints);
+  //         voronoiCtx.clearRect(0, 0, poissonVoronoi.width, poissonVoronoi.height);
+  //         drawVoronoiPolygons(voronoiCtx, voronoiPoints, polyLines);
+  //     }
+  //   };
+  // }
 
-  function drawVoronoiPolygons(context, points, polyLines) {
-    var i = void 0;
-    var j = void 0;
-    var currentDot = void 0;
-    var currentPixelCoords = void 0;
+  function drawNextPolygon(vertices, allPolyLines, context) {
+    var vertex = vertices[0];
+    var polyLines = allPolyLines[0];
+    // debugger;
+    if (!(vertex && polyLines)) {
+      return;
+    }
     var rgb = void 0;
     var rgbSum = void 0;
-    var lastRgb = void 0;
-    var combinedRgbs = void 0;
-    var prevPixel = void 0;
-    var gradient = void 0;
-    var rgbStr = void 0;
-    // debugger;
-    for (i = 0; i < polyLines.length; i++) {
-      currentDot = points[i];
-      // rgb = imgContext.getImageData(currentDot[0], currentDot[1], 1, 1).data.slice(0, 3);
-      rgbSum = Array.from(imgContext.getImageData(currentDot[0], currentDot[1], 1, 1).data.slice(0, 3));
-      // debugger;
-      // vCtx.fillStyle = `rgb(${rgb.join(', ')})`;
-      context.beginPath();
-      context.moveTo(polyLines[i][0][0], polyLines[i][0][1]);
-      currentPixelCoords = [polyLines[i][0][0], polyLines[i][0][1]];
+    var currentPixelCoords = void 0;
+    var j = void 0;
+    rgbSum = Array.from(imgContext.getImageData(vertex[0], vertex[1], 1, 1).data.slice(0, 3));
+
+    currentPixelCoords = [polyLines[0][0], polyLines[0][1]];
+    context.beginPath();
+    context.moveTo.apply(context, _toConsumableArray(currentPixelCoords));
+
+    rgb = Array.from(imgContext.getImageData.apply(imgContext, _toConsumableArray(currentPixelCoords).concat([1, 1])).data.slice(0, 3));
+    rgbSum[0] += rgb[0];
+    rgbSum[1] += rgb[1];
+    rgbSum[2] += rgb[2];
+
+    for (j = 1; j < polyLines.length; j++) {
+      currentPixelCoords = [polyLines[j][0], polyLines[j][1]];
       rgb = Array.from(imgContext.getImageData.apply(imgContext, _toConsumableArray(currentPixelCoords).concat([1, 1])).data.slice(0, 3));
       rgbSum[0] += rgb[0];
       rgbSum[1] += rgb[1];
       rgbSum[2] += rgb[2];
-      prevPixel = currentPixelCoords;
-      lastRgb = 'rgb(' + rgb.join(', ') + ')';
-      for (j = 1; j < polyLines[i].length; j++) {
-        currentPixelCoords = [polyLines[i][j][0], polyLines[i][j][1]];
-        rgb = Array.from(imgContext.getImageData.apply(imgContext, _toConsumableArray(currentPixelCoords).concat([1, 1])).data.slice(0, 3));
-        rgbSum[0] += rgb[0];
-        rgbSum[1] += rgb[1];
-        rgbSum[2] += rgb[2];
-        context.lineTo.apply(context, _toConsumableArray(currentPixelCoords));
-
-        // combinedRgbs = lastRgb.map((val, idx) => (val + rgb[idx]) / 2);
-        // debugger
-
-        gradient = context.createLinearGradient(prevPixel[0], currentPixelCoords[0], prevPixel[1], currentPixelCoords[1]);
-        rgbStr = 'rgb(' + rgb.join(', ') + ')';
-        gradient.addColorStop(0, lastRgb);
-        gradient.addColorStop(1, rgbStr);
-        context.strokeStyle = gradient;
-        context.stroke();
-        lastRgb = rgbStr;
-        prevPixel = currentPixelCoords;
-      }
-      // debugger
-      rgb = rgbSum.map(function (sum) {
-        return sum / (polyLines[i].length + 1);
-      });
-      context.fillStyle = 'rgb(' + rgb.join(", ") + ')';
-      context.closePath();
-      context.fill();
+      context.lineTo.apply(context, _toConsumableArray(currentPixelCoords));
     }
+    rgb = rgbSum.map(function (sum) {
+      return sum / (polyLines.length + 1);
+    });
+    context.fillStyle = 'rgb(' + rgb.join(", ") + ')';
+    context.closePath();
+    context.fill();
+
+    setTimeout(function () {
+      return drawNextPolygon(vertices.slice(1), allPolyLines.slice(1), context);
+    }, 1);
   }
 
-  function initVoronoi() {
+  function drawVoronoi(points) {
     var voronoi = d3.voronoi();
     voronoi.extent([[0, 0], [poissonVoronoi.height, poissonVoronoi.width]]);
     var voronoiCtx = poissonVoronoi.getContext('2d');
-    var voronoiPoints = [];
-    var polyLines = void 0;
-    return function (newPoint) {
-      // debugger;
-      voronoiPoints.push(newPoint);
-      if (voronoiPoints.length % 100 === 0) {
-        polyLines = voronoi.polygons(voronoiPoints);
-        voronoiCtx.clearRect(0, 0, poissonVoronoi.width, poissonVoronoi.height);
-        drawVoronoiPolygons(voronoiCtx, voronoiPoints, polyLines);
-      }
-    };
+    var polyLines = voronoi.polygons(points);
+    drawNextPolygon(points, polyLines, voronoiCtx);
+    // let i;
+    // let j;
+    // let currentDot;
+    // let currentPixelCoords;
+    // let rgb;
+    // let rgbSum;
+    // let lastRgb;
+    // let combinedRgbs;
+    // let prevPixel;
+    // let gradient;
+    // let rgbStr;
+
+    // debugger;
   }
 
   imgContext.drawImage(img, 0, 0, 400, 400);
 
   var poissonCanvasStipplingCtx = poissonCanvasStippling.getContext('2d');
   var poissonCanvasMapCtx = poissonCanvasMap.getContext('2d');
-  var voronoiDrawer = initVoronoi(poissonVoronoi);
-  (0, _poisson_disc_generator2.default)(poissonCanvasStippling.height, poissonCanvasStippling.width, 4, 30, function (newPoint, prevPoint) {
+  var poisson = new _poisson_disc_generator2.default(poissonCanvasStippling.height, poissonCanvasStippling.width, 4, 30);
+  // const voronoiDrawer = initVoronoi(poissonVoronoi);
+  var poissonPoints = poisson.load();
+  debugger;
+
+  function drawNextStipplingPoint(points) {
+    if (points.length === 0) {
+      return;
+    }
+    drawPoint(points[0].coords, poissonCanvasStipplingCtx);
     setTimeout(function () {
-      drawPoint(newPoint, poissonCanvasStipplingCtx);
-      voronoiDrawer(newPoint);
-      if (prevPoint) {
-        poissonCanvasMapCtx.beginPath();
-        poissonCanvasMapCtx.moveTo(prevPoint[0], prevPoint[1]);
-        poissonCanvasMapCtx.lineTo(newPoint[0], newPoint[1]);
-        poissonCanvasMapCtx.lineWidth = 1;
-        fillLine(poissonCanvasMapCtx, prevPoint, newPoint);
-      }
-    }, 0);
-  });
+      return drawNextStipplingPoint(points.slice(1));
+    }, 1);
+  }
+
+  function drawNextMapLine(points) {
+    if (points.length === 0) {
+      return;
+    } else if (points[0].refCoords) {
+      var newPoint = points[0].coords;
+      var prevPoint = points[0].refCoords;
+      poissonCanvasMapCtx.beginPath();
+      poissonCanvasMapCtx.moveTo(prevPoint[0], prevPoint[1]);
+      poissonCanvasMapCtx.lineTo(newPoint[0], newPoint[1]);
+      poissonCanvasMapCtx.lineWidth = 2;
+      fillLine(poissonCanvasMapCtx, prevPoint, newPoint);
+    }
+    setTimeout(function () {
+      return drawNextMapLine(points.slice(1));
+    }, 1);
+  }
+  // let poissonPoints = poisson.load((newPoint, prevPoint) => {
+  //   setTimeout(() => {
+  //     drawPoint(newPoint, poissonCanvasStipplingCtx);
+  //     // voronoiDrawer(newPoint);
+  //     if (prevPoint) {
+  //       poissonCanvasMapCtx.beginPath();
+  //       poissonCanvasMapCtx.moveTo(prevPoint[0], prevPoint[1]);
+  //       poissonCanvasMapCtx.lineTo(newPoint[0],newPoint[1]);
+  //       poissonCanvasMapCtx.lineWidth=1;
+  //       fillLine(poissonCanvasMapCtx, prevPoint, newPoint);
+  //     }
+  //   }, 100);
+  // });
+  drawNextStipplingPoint(poissonPoints);
+  drawNextMapLine(poissonPoints);
+  drawVoronoi(poissonPoints.map(function (point) {
+    return point.coords;
+  }));
+  // generateRandomSample(imageCanv, randomCanv, poissonPoints.length, 4);
+  // generateUniformSample(imageCanv, uniformCanv, 6);
 
   // let poissonPoints = generatePoissonSample(imageCanv, poissonCanvas, poissonCanvasMap, 4, 30);
   // const voronoi = d3.voronoi();
@@ -9802,112 +9844,172 @@ Object.defineProperty(exports, "__esModule", {
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-exports.default = generatePoissonSample;
-function generatePoissonSample(canvasHeight, canvasWidth, radius, maxCandidates, drawFunc) {
-  var cellSize = Math.floor(radius / Math.sqrt(2));
-  var gridHeight = Math.ceil(canvasHeight / cellSize) + 1;
-  var gridWidth = Math.ceil(canvasWidth / cellSize) + 1;
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-  var grid = [];
-  var points = [];
-  var numPoints = 0;
-  var activePoints = [];
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  var rowIdx = void 0;
-  var colIdx = void 0;
-  for (rowIdx = 0; rowIdx < gridHeight; rowIdx++) {
-    grid[rowIdx] = new Array(gridWidth);
+var poissonSample = function () {
+  function poissonSample(canvasHeight, canvasWidth, radius, maxCandidates) {
+    _classCallCheck(this, poissonSample);
+
+    this.cellSize = Math.floor(radius / Math.sqrt(2));
+    this.maxCandidates = maxCandidates;
+    this.radius = radius;
+    this.canvasHeight = canvasHeight;
+    this.canvasWidth = canvasWidth;
+    this.gridHeight = Math.ceil(canvasHeight / this.cellSize) + 1;
+    this.gridWidth = Math.ceil(canvasWidth / this.cellSize) + 1;
+    this.grid = this.initGrid();
+    this.points = [];
+    this.numPoints = 0;
+    this.activePoints = [];
   }
 
-  function pointToGridCoords(point) {
-    rowIdx = Math.floor(point[0] / cellSize);
-    colIdx = Math.floor(point[1] / cellSize);
-    return [rowIdx, colIdx];
-  }
-
-  function insert(newPoint, prevPoint) {
-    points.push(newPoint);
-    drawFunc(newPoint, prevPoint);
-
-    var _pointToGridCoords = pointToGridCoords(newPoint);
-
-    var _pointToGridCoords2 = _slicedToArray(_pointToGridCoords, 2);
-
-    rowIdx = _pointToGridCoords2[0];
-    colIdx = _pointToGridCoords2[1];
-
-    grid[rowIdx][colIdx] = newPoint;
-    numPoints += 1;
-  }
-
-  function distance(pointA, pointB) {
-    var squaredDist = Math.pow(pointA[0] - pointB[0], 2) + Math.pow(pointA[1] - pointB[1], 2);
-    return Math.sqrt(squaredDist);
-  }
-
-  function isInRange(point) {
-    return point[0] > 0 && point[0] < canvasHeight && point[1] > 0 && point[1] < canvasWidth;
-  }
-
-  function isValidPoint(point) {
-    if (!isInRange(point)) {
-      return false;
+  _createClass(poissonSample, [{
+    key: "initGrid",
+    value: function initGrid() {
+      var rowIdx = void 0;
+      var colIdx = void 0;
+      var grid = [];
+      for (rowIdx = 0; rowIdx < this.gridHeight; rowIdx++) {
+        grid[rowIdx] = new Array(this.gridWidth);
+      }
+      return grid;
     }
 
-    var _pointToGridCoords3 = pointToGridCoords(point);
+    // pointToGridCoords(point) {
+    //   let rowIdx;
+    //   let colIdx;
+    //   rowIdx = Math.floor(point[0] / this.cellSize);
+    //   colIdx = Math.floor(point[1] / this.cellSize);
+    //   return [rowIdx, colIdx];
+    // }
 
-    var _pointToGridCoords4 = _slicedToArray(_pointToGridCoords3, 2);
+  }, {
+    key: "pointToGridCoords",
+    value: function pointToGridCoords(coords) {
+      var rowIdx = void 0;
+      var colIdx = void 0;
+      rowIdx = Math.floor(coords[0] / this.cellSize);
+      colIdx = Math.floor(coords[1] / this.cellSize);
+      return [rowIdx, colIdx];
+    }
+  }, {
+    key: "insert",
+    value: function insert(newPoint) {
+      var rowIdx = void 0;
+      var colIdx = void 0;
+      this.points.push(newPoint);
+      this.activePoints.push(newPoint);
 
-    rowIdx = _pointToGridCoords4[0];
-    colIdx = _pointToGridCoords4[1];
+      var _pointToGridCoords = this.pointToGridCoords(newPoint.coords);
 
-    var rowIdxMin = Math.max(0, rowIdx - 1);
-    var colIdxMin = Math.max(0, colIdx - 1);
-    var rowIdxMax = Math.min(gridWidth - 1, rowIdx + 1);
-    var colIdxMax = Math.min(gridHeight - 1, colIdx + 1);
+      var _pointToGridCoords2 = _slicedToArray(_pointToGridCoords, 2);
 
-    for (rowIdx = rowIdxMin; rowIdx <= rowIdxMax; rowIdx++) {
-      for (colIdx = colIdxMin; colIdx <= colIdxMax; colIdx++) {
-        if (grid[rowIdx][colIdx] && distance(grid[rowIdx][colIdx], point) < radius) {
-          return false;
+      rowIdx = _pointToGridCoords2[0];
+      colIdx = _pointToGridCoords2[1];
+
+      this.grid[rowIdx][colIdx] = newPoint;
+      this.numPoints += 1;
+    }
+
+    // distance(pointA, pointB) {
+    //   const squaredDist = Math.pow((pointA[0] - pointB[0]), 2) + Math.pow((pointA[1] - pointB[1]), 2)
+    //   return Math.sqrt(squaredDist);
+    // }
+
+  }, {
+    key: "distance",
+    value: function distance(pointA, pointB) {
+      var squaredDist = Math.pow(pointA.coords[0] - pointB.coords[0], 2) + Math.pow(pointA.coords[1] - pointB.coords[1], 2);
+      return Math.sqrt(squaredDist);
+    }
+  }, {
+    key: "isInRange",
+    value: function isInRange(point) {
+      return point.coords[0] > 0 && point.coords[0] < this.canvasHeight && point.coords[1] > 0 && point.coords[1] < this.canvasWidth;
+    }
+
+    // isInRange(point) {
+    //   return (point[0] > 0 &&
+    //           point[0] < this.canvasHeight &&
+    //           point[1] > 0 &&
+    //           point[1] < this.canvasWidth);
+    // }
+
+  }, {
+    key: "isValidPoint",
+    value: function isValidPoint(point) {
+      var rowIdx = void 0;
+      var colIdx = void 0;
+      if (!this.isInRange(point)) {
+        return false;
+      }
+
+      var _pointToGridCoords3 = this.pointToGridCoords(point.coords);
+
+      var _pointToGridCoords4 = _slicedToArray(_pointToGridCoords3, 2);
+
+      rowIdx = _pointToGridCoords4[0];
+      colIdx = _pointToGridCoords4[1];
+
+      var rowIdxMin = Math.max(0, rowIdx - 1);
+      var colIdxMin = Math.max(0, colIdx - 1);
+      var rowIdxMax = Math.min(this.gridWidth - 1, rowIdx + 1);
+      var colIdxMax = Math.min(this.gridHeight - 1, colIdx + 1);
+
+      for (rowIdx = rowIdxMin; rowIdx <= rowIdxMax; rowIdx++) {
+        for (colIdx = colIdxMin; colIdx <= colIdxMax; colIdx++) {
+          if (this.grid[rowIdx][colIdx] && this.distance(this.grid[rowIdx][colIdx], point) < this.radius) {
+            return false;
+          }
         }
       }
+      return true;
     }
-    return true;
-  }
+  }, {
+    key: "load",
+    value: function load() {
+      var p0 = { coords: [Math.round(Math.random() * this.canvasWidth), Math.round(Math.random() * this.canvasHeight)]
+      };
+      // const p0 = [Math.round(Math.random() * this.canvasWidth),
+      //             Math.round(Math.random() * this.canvasHeight)];
+      this.insert(p0, null);
 
-  var p0 = [Math.round(Math.random() * canvasWidth), Math.round(Math.random() * canvasHeight)];
-  activePoints.push(p0);
-  insert(p0);
-
-  var refIdx = void 0;
-  var refPoint = void 0;
-  var numCandidates = void 0;
-  var candidateMaxReached = void 0;
-  var candidatePoint = void 0;
-  var theta = void 0;
-  var dist = void 0;
-  while (activePoints.length > 0) {
-    refIdx = Math.floor(Math.random() * activePoints.length);
-    refPoint = activePoints[refIdx];
-    candidateMaxReached = true;
-    for (numCandidates = 0; numCandidates <= maxCandidates; numCandidates++) {
-      theta = Math.random() * 360;
-      dist = Math.random() * radius + radius;
-      candidatePoint = [dist * Math.cos(theta) + refPoint[0], dist * Math.sin(theta) + refPoint[1]];
-      if (isValidPoint(candidatePoint)) {
-        insert(candidatePoint, refPoint);
-        activePoints.push(candidatePoint);
-        candidateMaxReached = false;
-        break;
+      var refIdx = void 0;
+      var refPoint = void 0;
+      var numCandidates = void 0;
+      var candidateMaxReached = void 0;
+      var candidatePoint = void 0;
+      var theta = void 0;
+      var dist = void 0;
+      while (this.activePoints.length > 0) {
+        refIdx = Math.floor(Math.random() * this.activePoints.length);
+        refPoint = this.activePoints[refIdx];
+        candidateMaxReached = true;
+        for (numCandidates = 0; numCandidates <= this.maxCandidates; numCandidates++) {
+          theta = Math.random() * 360;
+          dist = Math.random() * this.radius + this.radius;
+          candidatePoint = { coords: [dist * Math.cos(theta) + refPoint.coords[0], dist * Math.sin(theta) + refPoint.coords[1]],
+            refCoords: refPoint.coords };
+          if (this.isValidPoint(candidatePoint)) {
+            this.insert(candidatePoint);
+            candidateMaxReached = false;
+            break;
+          }
+        }
+        if (candidateMaxReached) {
+          this.activePoints.splice(refIdx, 1);
+        }
       }
+      return this.points;
     }
-    if (candidateMaxReached) {
-      activePoints.splice(refIdx, 1);
-    }
-  }
-  return points;
-}
+  }]);
+
+  return poissonSample;
+}();
+
+exports.default = poissonSample;
 
 /***/ }),
 /* 176 */
@@ -9920,6 +10022,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = generateRandomSample;
+// class
+
 function generateRandomSample(imageCanvas, canvas, numDots, maxRadius) {
   var imageCanvasContext = imageCanvas.getContext('2d');
   var canvasContext = canvas.getContext('2d');

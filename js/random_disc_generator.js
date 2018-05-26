@@ -1,3 +1,5 @@
+// class
+
 export default function generateRandomSample(imageCanvas, canvas, numDots, maxRadius) {
   const imageCanvasContext = imageCanvas.getContext('2d');
   const canvasContext = canvas.getContext('2d');
