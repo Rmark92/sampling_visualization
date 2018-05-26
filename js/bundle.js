@@ -9546,7 +9546,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 document.addEventListener("DOMContentLoaded", function () {
   var img = new Image();
-  img.src = 'images/the_zuck.jpg';
+  img.src = 'starry_night.jpg';
   img.onload = function () {
     (0, _image_renderer2.default)(img);
   };
@@ -9588,13 +9588,17 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function renderImages(img) {
   var imageCanv = document.getElementById('image-canvas');
-  var poissonCanvasStippling = document.getElementById("poisson-canvas");
-  var poissonCanvasMap = document.getElementById("poisson-path-canvas");
-  var randomCanv = document.getElementById("random-canvas");
-  var uniformCanv = document.getElementById("uniform-canvas");
-  var poissonVoronoi = document.getElementById("poisson-voronoi");
+  var poissonCanvasStippling = document.getElementById("poisson-canvas-stippling");
+  var poissonCanvasMap = document.getElementById("poisson-canvas-map");
+  var poissonCanvasVoronoi = document.getElementById("poisson-canvas-voronoi");
+  var randomCanvasStippling = document.getElementById("random-canvas-stippling");
+  var randomCanvasVoronoi = document.getElementById("random-canvas-voronoi");
+  var uniformCanvasStippling = document.getElementById("uniform-canvas-stippling");
+  var uniformCanvasVoronoi = document.getElementById("uniform-canvas-voronoi");
   var imgContext = imageCanv.getContext('2d');
   var radius = 3;
+  var height = 400;
+  var width = 400;
 
   function drawPoint(point, context) {
     var pixelData = imgContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
@@ -9620,23 +9624,6 @@ function renderImages(img) {
     context.strokeStyle = gradient;
     context.stroke();
   }
-  //
-  // function initVoronoi() {
-  //   const voronoi = d3.voronoi();
-  //   voronoi.extent([[0, 0], [poissonVoronoi.height, poissonVoronoi.width]]);
-  //   const voronoiCtx = poissonVoronoi.getContext('2d');
-  //   const voronoiPoints = [];
-  //   let polyLines;
-  //   return (newPoint) => {
-  //     // debugger;
-  //     voronoiPoints.push(newPoint);
-  //     if (voronoiPoints.length % 100 === 0) {
-  //         polyLines = voronoi.polygons(voronoiPoints);
-  //         voronoiCtx.clearRect(0, 0, poissonVoronoi.width, poissonVoronoi.height);
-  //         drawVoronoiPolygons(voronoiCtx, voronoiPoints, polyLines);
-  //     }
-  //   };
-  // }
 
   function drawNextPolygon(vertices, allPolyLines, context) {
     var vertex = vertices[0];
@@ -9649,28 +9636,30 @@ function renderImages(img) {
     var rgbSum = void 0;
     var currentPixelCoords = void 0;
     var j = void 0;
-    rgbSum = Array.from(imgContext.getImageData(vertex[0], vertex[1], 1, 1).data.slice(0, 3));
+    // rgbSum = Array.from(imgContext.getImageData(vertex[0], vertex[1], 1, 1)
+    //                               .data
+    //                               .slice(0, 3));
+    rgb = Array.from(imgContext.getImageData(vertex[0], vertex[1], 1, 1).data.slice(0, 3));
 
     currentPixelCoords = [polyLines[0][0], polyLines[0][1]];
     context.beginPath();
+    context.fillStyle = 'rgb(' + rgb.join(", ") + ')';
     context.moveTo.apply(context, _toConsumableArray(currentPixelCoords));
 
-    rgb = Array.from(imgContext.getImageData.apply(imgContext, _toConsumableArray(currentPixelCoords).concat([1, 1])).data.slice(0, 3));
-    rgbSum[0] += rgb[0];
-    rgbSum[1] += rgb[1];
-    rgbSum[2] += rgb[2];
+    // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
+    // rgbSum[0] += rgb[0];
+    // rgbSum[1] += rgb[1];
+    // rgbSum[2] += rgb[2];
 
     for (j = 1; j < polyLines.length; j++) {
       currentPixelCoords = [polyLines[j][0], polyLines[j][1]];
-      rgb = Array.from(imgContext.getImageData.apply(imgContext, _toConsumableArray(currentPixelCoords).concat([1, 1])).data.slice(0, 3));
-      rgbSum[0] += rgb[0];
-      rgbSum[1] += rgb[1];
-      rgbSum[2] += rgb[2];
+      // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
+      // rgbSum[0] += rgb[0];
+      // rgbSum[1] += rgb[1];
+      // rgbSum[2] += rgb[2];
       context.lineTo.apply(context, _toConsumableArray(currentPixelCoords));
     }
-    rgb = rgbSum.map(function (sum) {
-      return sum / (polyLines.length + 1);
-    });
+    // rgb = rgbSum.map( (sum) => sum / (polyLines.length + 1));
     context.fillStyle = 'rgb(' + rgb.join(", ") + ')';
     context.closePath();
     context.fill();
@@ -9680,156 +9669,145 @@ function renderImages(img) {
     }, 1);
   }
 
-  function drawVoronoi(points) {
+  function drawVoronoi(points, context) {
     var voronoi = d3.voronoi();
-    voronoi.extent([[0, 0], [poissonVoronoi.height, poissonVoronoi.width]]);
-    var voronoiCtx = poissonVoronoi.getContext('2d');
+    voronoi.extent([[0, 0], [height, width]]);
+    // const voronoiCtx = context.getContext('2d');
     var polyLines = voronoi.polygons(points);
-    drawNextPolygon(points, polyLines, voronoiCtx);
-    // let i;
-    // let j;
-    // let currentDot;
-    // let currentPixelCoords;
-    // let rgb;
-    // let rgbSum;
-    // let lastRgb;
-    // let combinedRgbs;
-    // let prevPixel;
-    // let gradient;
-    // let rgbStr;
-
-    // debugger;
+    drawNextPolygon(points, polyLines, context);
   }
 
-  imgContext.drawImage(img, 0, 0, 400, 400);
+  imgContext.drawImage(img, 0, 0, height, width);
 
   var poissonCanvasStipplingCtx = poissonCanvasStippling.getContext('2d');
   var poissonCanvasMapCtx = poissonCanvasMap.getContext('2d');
-  var poisson = new _poisson_disc_generator2.default(poissonCanvasStippling.height, poissonCanvasStippling.width, 4, 30);
-  // const voronoiDrawer = initVoronoi(poissonVoronoi);
+  var poissonCanvasVoronoiCtx = poissonCanvasVoronoi.getContext('2d');
+  var poisson = new _poisson_disc_generator2.default(height, width, 3, 30);
   var poissonPoints = poisson.load();
-  debugger;
+  var random = new _random_disc_generator2.default(height, width, poissonPoints.length);
+  var randomPoints = random.load();
+  var uniform = new _uniform_disc_generator2.default(height, width, 3 * (3 / 2));
+  var uniformPoints = uniform.load();
+  drawNextStipplingPoint(poissonPoints, poissonCanvasStipplingCtx);
+  drawNextMapLine(poissonPoints, poissonCanvasMapCtx);
+  drawVoronoi(poissonPoints.map(function (point) {
+    return point.coords;
+  }), poissonCanvasVoronoiCtx);
 
-  function drawNextStipplingPoint(points) {
+  var uniformCanvasStipplingCtx = uniformCanvasStippling.getContext('2d');
+  var uniformCanvasVoronoiCtx = uniformCanvasVoronoi.getContext('2d');
+  drawNextStipplingPoint(uniformPoints, uniformCanvasStipplingCtx);
+  drawVoronoi(uniformPoints.map(function (point) {
+    return point.coords;
+  }), uniformCanvasVoronoiCtx);
+
+  var randomCanvasStipplingCtx = randomCanvasStippling.getContext('2d');
+  var randomCanvasVoronoiCtx = randomCanvasVoronoi.getContext('2d');
+  drawNextStipplingPoint(randomPoints, randomCanvasStipplingCtx);
+  drawVoronoi(randomPoints.map(function (point) {
+    return point.coords;
+  }), randomCanvasVoronoiCtx);
+
+  function drawNextStipplingPoint(points, context) {
     if (points.length === 0) {
       return;
     }
-    drawPoint(points[0].coords, poissonCanvasStipplingCtx);
+    drawPoint(points[0].coords, context);
     setTimeout(function () {
-      return drawNextStipplingPoint(points.slice(1));
+      return drawNextStipplingPoint(points.slice(1), context);
     }, 1);
   }
 
-  function drawNextMapLine(points) {
+  function drawNextMapLine(points, context) {
     if (points.length === 0) {
       return;
     } else if (points[0].refCoords) {
       var newPoint = points[0].coords;
       var prevPoint = points[0].refCoords;
-      poissonCanvasMapCtx.beginPath();
-      poissonCanvasMapCtx.moveTo(prevPoint[0], prevPoint[1]);
-      poissonCanvasMapCtx.lineTo(newPoint[0], newPoint[1]);
-      poissonCanvasMapCtx.lineWidth = 2;
-      fillLine(poissonCanvasMapCtx, prevPoint, newPoint);
+      context.beginPath();
+      context.moveTo(prevPoint[0], prevPoint[1]);
+      context.lineTo(newPoint[0], newPoint[1]);
+      context.lineWidth = 2;
+      fillLine(context, prevPoint, newPoint);
     }
     setTimeout(function () {
-      return drawNextMapLine(points.slice(1));
+      return drawNextMapLine(points.slice(1), context);
     }, 1);
   }
-  // let poissonPoints = poisson.load((newPoint, prevPoint) => {
-  //   setTimeout(() => {
-  //     drawPoint(newPoint, poissonCanvasStipplingCtx);
-  //     // voronoiDrawer(newPoint);
-  //     if (prevPoint) {
-  //       poissonCanvasMapCtx.beginPath();
-  //       poissonCanvasMapCtx.moveTo(prevPoint[0], prevPoint[1]);
-  //       poissonCanvasMapCtx.lineTo(newPoint[0],newPoint[1]);
-  //       poissonCanvasMapCtx.lineWidth=1;
-  //       fillLine(poissonCanvasMapCtx, prevPoint, newPoint);
-  //     }
-  //   }, 100);
-  // });
-  drawNextStipplingPoint(poissonPoints);
-  drawNextMapLine(poissonPoints);
-  drawVoronoi(poissonPoints.map(function (point) {
-    return point.coords;
-  }));
-  // generateRandomSample(imageCanv, randomCanv, poissonPoints.length, 4);
-  // generateUniformSample(imageCanv, uniformCanv, 6);
-
-  // let poissonPoints = generatePoissonSample(imageCanv, poissonCanvas, poissonCanvasMap, 4, 30);
-  // const voronoi = d3.voronoi();
-  // voronoi.extent([[0, 0], [400, 400]]);
-  // const vCtx = vCanvas.getContext('2d');
-  // const polyLines = voronoi.polygons(poissonPoints);
-  // let i;
-  // let j;
-  // let currentDot;
-  // let currentPixelCoords;
-  // let rgb;
-  // let rgbSum;
-  // let lastRgb;
-  // let combinedRgbs;
-  // let prevPixel;
-  // let gradient;
-  // let rgbStr;
-  // // debugger;
-  // for (i = 0; i < polyLines.length; i++ ) {
-  //   currentDot = poissonPoints[i];
-  //   // rgb = imgContext.getImageData(currentDot[0], currentDot[1], 1, 1).data.slice(0, 3);
-  //   rgbSum = Array.from(imgContext.getImageData(currentDot[0], currentDot[1], 1, 1)
-  //                                 .data
-  //                                 .slice(0, 3));
-  //   // debugger;
-  //   // vCtx.fillStyle = `rgb(${rgb.join(', ')})`;
-  //   vCtx.beginPath();
-  //   vCtx.moveTo(polyLines[i][0][0], polyLines[i][0][1]);
-  //   currentPixelCoords = [polyLines[i][0][0], polyLines[i][0][1]];
-  //   rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
-  //   rgbSum[0] += rgb[0];
-  //   rgbSum[1] += rgb[1];
-  //   rgbSum[2] += rgb[2];
-  //   prevPixel = currentPixelCoords;
-  //   lastRgb = `rgb(${rgb.join(', ')})`;
-  //   for (j = 1; j < polyLines[i].length; j++) {
-  //     currentPixelCoords = [polyLines[i][j][0], polyLines[i][j][1]];
-  //     rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
-  //     rgbSum[0] += rgb[0];
-  //     rgbSum[1] += rgb[1];
-  //     rgbSum[2] += rgb[2];
-  //     vCtx.lineTo(...currentPixelCoords);
-  //
-  //     // combinedRgbs = lastRgb.map((val, idx) => (val + rgb[idx]) / 2);
-  //     // debugger
-  //
-  //     gradient = vCtx.createLinearGradient(prevPixel[0],
-  //                                          currentPixelCoords[0],
-  //                                          prevPixel[1],
-  //                                          currentPixelCoords[1]);
-  //     rgbStr = `rgb(${rgb.join(', ')})`;
-  //     gradient.addColorStop(0, lastRgb);
-  //     gradient.addColorStop(1, rgbStr);
-  //     vCtx.strokeStyle = gradient;
-  //     vCtx.stroke();
-  //     lastRgb = rgbStr;
-  //     prevPixel = currentPixelCoords;
-  //   }
-  //   // debugger
-  //   rgb = rgbSum.map( (sum) => sum / (polyLines[i].length + 1));
-  //   vCtx.fillStyle = `rgb(${rgb.join(", ")})`;
-  //   vCtx.closePath();
-  //   vCtx.fill();
-  // }
-  // debugger;
-  // d3.select("#poisson-voronoi")
-  //   .selectAll("path")
-  //   .data(voronoi(poissonPoints).polygons())
-  //   .enter()
-  //   .append("path")
-  //   .style("fill", "#f50");
-  // generateRandomSample(imageCanv, randomCanv, poissonPoints.length, 4);
-  // generateUniformSample(imageCanv, uniformCanv, 6);
 }
+
+// let poissonPoints = generatePoissonSample(imageCanv, poissonCanvas, poissonCanvasMap, 4, 30);
+// const voronoi = d3.voronoi();
+// voronoi.extent([[0, 0], [400, 400]]);
+// const vCtx = vCanvas.getContext('2d');
+// const polyLines = voronoi.polygons(poissonPoints);
+// let i;
+// let j;
+// let currentDot;
+// let currentPixelCoords;
+// let rgb;
+// let rgbSum;
+// let lastRgb;
+// let combinedRgbs;
+// let prevPixel;
+// let gradient;
+// let rgbStr;
+// // debugger;
+// for (i = 0; i < polyLines.length; i++ ) {
+//   currentDot = poissonPoints[i];
+//   // rgb = imgContext.getImageData(currentDot[0], currentDot[1], 1, 1).data.slice(0, 3);
+//   rgbSum = Array.from(imgContext.getImageData(currentDot[0], currentDot[1], 1, 1)
+//                                 .data
+//                                 .slice(0, 3));
+//   // debugger;
+//   // vCtx.fillStyle = `rgb(${rgb.join(', ')})`;
+//   vCtx.beginPath();
+//   vCtx.moveTo(polyLines[i][0][0], polyLines[i][0][1]);
+//   currentPixelCoords = [polyLines[i][0][0], polyLines[i][0][1]];
+//   rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
+//   rgbSum[0] += rgb[0];
+//   rgbSum[1] += rgb[1];
+//   rgbSum[2] += rgb[2];
+//   prevPixel = currentPixelCoords;
+//   lastRgb = `rgb(${rgb.join(', ')})`;
+//   for (j = 1; j < polyLines[i].length; j++) {
+//     currentPixelCoords = [polyLines[i][j][0], polyLines[i][j][1]];
+//     rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
+//     rgbSum[0] += rgb[0];
+//     rgbSum[1] += rgb[1];
+//     rgbSum[2] += rgb[2];
+//     vCtx.lineTo(...currentPixelCoords);
+//
+//     // combinedRgbs = lastRgb.map((val, idx) => (val + rgb[idx]) / 2);
+//     // debugger
+//
+//     gradient = vCtx.createLinearGradient(prevPixel[0],
+//                                          currentPixelCoords[0],
+//                                          prevPixel[1],
+//                                          currentPixelCoords[1]);
+//     rgbStr = `rgb(${rgb.join(', ')})`;
+//     gradient.addColorStop(0, lastRgb);
+//     gradient.addColorStop(1, rgbStr);
+//     vCtx.strokeStyle = gradient;
+//     vCtx.stroke();
+//     lastRgb = rgbStr;
+//     prevPixel = currentPixelCoords;
+//   }
+//   // debugger
+//   rgb = rgbSum.map( (sum) => sum / (polyLines[i].length + 1));
+//   vCtx.fillStyle = `rgb(${rgb.join(", ")})`;
+//   vCtx.closePath();
+//   vCtx.fill();
+// }
+// debugger;
+// d3.select("#poisson-voronoi")
+//   .selectAll("path")
+//   .data(voronoi(poissonPoints).polygons())
+//   .enter()
+//   .append("path")
+//   .style("fill", "#f50");
+// generateRandomSample(imageCanv, randomCanv, poissonPoints.length, 4);
+// generateUniformSample(imageCanv, uniformCanv, 6);
 
 /***/ }),
 /* 175 */
@@ -10021,35 +9999,66 @@ exports.default = poissonSample;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = generateRandomSample;
-// class
 
-function generateRandomSample(imageCanvas, canvas, numDots, maxRadius) {
-  var imageCanvasContext = imageCanvas.getContext('2d');
-  var canvasContext = canvas.getContext('2d');
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-  function calculateDotRadius(point) {
-    var pixelData = imageCanvasContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
-    var grayScaleVal = pixelData.reduce(function (memo, val) {
-      return memo + val;
-    }, 0) / 3;
-    var dotRadius = (300 - grayScaleVal) / 300 * (maxRadius / 2);
-    return dotRadius;
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var UniformRandomSample = function () {
+  function UniformRandomSample(canvasHeight, canvasWidth, numDots) {
+    _classCallCheck(this, UniformRandomSample);
+
+    this.canvasHeight = canvasHeight;
+    this.canvasWidth = canvasWidth;
+    this.numDots = numDots;
+    this.points = [];
   }
 
-  var dotsPlaced = 0;
+  _createClass(UniformRandomSample, [{
+    key: "load",
+    value: function load() {
+      var dotsPlaced = 0;
+      while (dotsPlaced < this.numDots) {
+        var xCoord = Math.random() * this.canvasWidth;
+        var yCoord = Math.random() * this.canvasHeight;
+        var point = { coords: [xCoord, yCoord] };
+        this.points.push(point);
+        dotsPlaced += 1;
+      }
+      return this.points;
+    }
+  }]);
 
-  while (dotsPlaced < numDots) {
-    var xCoord = Math.random() * canvas.width;
-    var yCoord = Math.random() * canvas.height;
-    var point = [xCoord, yCoord];
-    var dotRadius = calculateDotRadius(point);
-    canvasContext.beginPath();
-    canvasContext.arc(point[0], point[1], dotRadius, 0, 2 * Math.PI);
-    canvasContext.fill();
-    dotsPlaced += 1;
-  }
-}
+  return UniformRandomSample;
+}();
+//
+// export default function generateRandomSample(imageCanvas, canvas, numDots, maxRadius) {
+//   const imageCanvasContext = imageCanvas.getContext('2d');
+//   const canvasContext = canvas.getContext('2d');
+//
+//   function calculateDotRadius(point) {
+//     const pixelData = imageCanvasContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
+//     const grayScaleVal = pixelData.reduce((memo, val) => memo + val, 0) / 3;
+//     const dotRadius = ((300 - grayScaleVal) / 300) * (maxRadius / 2);
+//     return dotRadius;
+//   }
+//
+//   let dotsPlaced = 0;
+//
+//   while (dotsPlaced < numDots) {
+//     let xCoord = Math.random() * canvas.width;
+//     let yCoord = Math.random() * canvas.height;
+//     let point = [xCoord, yCoord];
+//     let dotRadius = calculateDotRadius(point);
+//     canvasContext.beginPath();
+//     canvasContext.arc(point[0], point[1], dotRadius, 0, 2*Math.PI);
+//     canvasContext.fill();
+//     dotsPlaced += 1;
+//   }
+// }
+
+
+exports.default = UniformRandomSample;
 
 /***/ }),
 /* 177 */
@@ -10061,44 +10070,86 @@ function generateRandomSample(imageCanvas, canvas, numDots, maxRadius) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = generateUniformDisc;
-function generateUniformDisc(imageCanvas, canvas, radius) {
-  var imageCanvasContext = imageCanvas.getContext('2d');
-  var canvasContext = canvas.getContext('2d');
-  var horizStep = radius;
-  var verticalStep = Math.sqrt(Math.pow(radius, 2) - Math.pow(radius / 2, 2));
-  var horizPos = 0;
-  var vertPos = 0;
-  var evenRow = true;
 
-  function calculateDotRadius(point) {
-    var pixelData = imageCanvasContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
-    var grayScaleVal = pixelData.reduce(function (memo, val) {
-      return memo + val;
-    }, 0) / 3;
-    var dotRadius = (300 - grayScaleVal) / 300 * (radius / 2);
-    return dotRadius;
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var UniformSample = function () {
+  function UniformSample(canvasHeight, canvasWidth, radius) {
+    _classCallCheck(this, UniformSample);
+
+    this.radius = radius;
+    this.canvasHeight = canvasHeight;
+    this.canvasWidth = canvasWidth;
+    this.points = [];
   }
 
-  function drawPoint(point) {
-    var dotRadius = calculateDotRadius(point);
-    canvasContext.beginPath();
-    canvasContext.arc(point[0], point[1], dotRadius, 0, 2 * Math.PI);
-    canvasContext.fill();
-  }
-  var numDots = 0;
-  while (vertPos < canvas.width) {
-    horizPos = evenRow ? 0 : radius / 2;
-    while (horizPos < canvas.width) {
-      drawPoint([horizPos, vertPos]);
-      numDots += 1;
-      horizPos += horizStep;
+  _createClass(UniformSample, [{
+    key: "load",
+    value: function load() {
+      var horizStep = this.radius;
+      var verticalStep = Math.sqrt(Math.pow(this.radius, 2) - Math.pow(this.radius / 2, 2));
+
+      var horizPos = 0;
+      var vertPos = 0;
+      var evenRow = true;
+      var point = void 0;
+
+      var numDots = 0;
+      while (vertPos < this.canvasHeight) {
+        horizPos = evenRow ? 0 : this.radius / 2;
+        while (horizPos < this.canvasWidth) {
+          point = { coords: [horizPos, vertPos] };
+          this.points.push(point);
+          numDots += 1;
+          horizPos += horizStep;
+        }
+        vertPos += verticalStep;
+        evenRow = !evenRow;
+      }
+      return this.points;
     }
-    vertPos += verticalStep;
-    evenRow = !evenRow;
-  }
-  console.log(numDots);
-}
+  }]);
+
+  return UniformSample;
+}();
+
+// export default function generateUniformDisc(imageCanvas, canvas, radius) {
+//   const imageCanvasContext = imageCanvas.getContext('2d');
+//   const canvasContext = canvas.getContext('2d');
+//   const horizStep = radius;
+//   const verticalStep = Math.sqrt(Math.pow(radius, 2) - Math.pow((radius / 2), 2));
+//   let horizPos = 0;
+//   let vertPos = 0;
+//   let evenRow = true;
+//
+//   function calculateDotRadius(point) {
+//     const pixelData = imageCanvasContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
+//     const grayScaleVal = pixelData.reduce((memo, val) => memo + val, 0) / 3;
+//     const dotRadius = ((300 - grayScaleVal) / 300) * (radius / 2);
+//     return dotRadius;
+//   }
+//
+//   function drawPoint(point) {
+//     let dotRadius = calculateDotRadius(point);
+//     canvasContext.beginPath();
+//     canvasContext.arc(point[0], point[1], dotRadius, 0, 2*Math.PI);
+//     canvasContext.fill();
+//   }
+//   let numDots = 0;
+//   while (vertPos < canvas.width) {
+//     horizPos = evenRow ? 0 : radius / 2;
+//     while (horizPos < canvas.width) {
+//       drawPoint([horizPos, vertPos]);
+//       numDots += 1;
+//       horizPos += horizStep;
+//     }
+//     vertPos += verticalStep;
+//     evenRow = !evenRow;
+//   }
+//   console.log(numDots);
+// }
 
 // export default function generateUniformDisc(imageCanvas, canvas, numDots) {
 //   const imageCanvasContext = imageCanvas.getContext('2d');
@@ -10130,6 +10181,9 @@ function generateUniformDisc(imageCanvas, canvas, radius) {
 //     vertPos += radius;
 //   }
 // }
+
+
+exports.default = UniformSample;
 
 /***/ }),
 /* 178 */

@@ -6,14 +6,21 @@
     <title></title>
   </head>
   <body>
-    <div className="canvases">
-      <!-- <img id="original-image" src="./images/starry_night.jpg" height="400px" width="400px"></img> -->
-      <canvas id="image-canvas" width="400" height="400"></canvas>
-      <canvas id="poisson-canvas" width="400" height="400"></canvas>
-      <canvas id="poisson-path-canvas" width="400" height="400"></canvas>
-      <canvas id="random-canvas" width="400" height="400"></canvas>
-      <canvas id="uniform-canvas" width="400" height="400"></canvas>
-      <canvas id="poisson-voronoi" width="400" height="400"></canvas>
+    <canvas id="image-canvas" width="400" height="400"></canvas>
+    <div className="rendered-canvases">
+      <div className="poisson-canvases">
+        <canvas id="poisson-canvas-stippling" width="400" height="400"></canvas>
+        <canvas id="poisson-canvas-voronoi" width="400" height="400"></canvas>
+        <canvas id="poisson-canvas-map" width="400" height="400"></canvas>
+      </div>
+      <div className="uniform-canvases">
+        <canvas id="uniform-canvas-stippling" width="400" height="400"></canvas>
+        <canvas id="uniform-canvas-voronoi" width="400" height="400"></canvas>
+      </div>
+      <div className="random-canvases">
+        <canvas id="random-canvas-stippling" width="400" height="400"></canvas>
+        <canvas id="random-canvas-voronoi" width="400" height="400"></canvas>
+      </div>
     </div>
   </body>
 </html>
