@@ -7,8 +7,9 @@ import * as d3 from "d3";
 export default function renderImages(img) {
   const imageCanv = document.getElementById('image-canvas');
   const poissonCanvasStippling = document.getElementById("poisson-canvas-stippling");
-  const poissonCanvasMap = document.getElementById("poisson-canvas-map");
   const poissonCanvasVoronoi = document.getElementById("poisson-canvas-voronoi");
+  const poissonCanvasMap = document.getElementById("poisson-canvas-map");
+  const poissonCanvasDemo = document.getElementById("poisson-canvas-demo");
   const bestCandCanvasStippling = document.getElementById("bestcand-canvas-stippling");
   const bestCandCanvasVoronoi = document.getElementById("bestcand-canvas-voronoi");
   const bestCandCanvasMap = document.getElementById("bestcand-canvas-map");
@@ -103,7 +104,8 @@ export default function renderImages(img) {
   const poissonCanvasStipplingCtx = poissonCanvasStippling.getContext('2d');
   const poissonCanvasMapCtx = poissonCanvasMap.getContext('2d');
   const poissonCanvasVoronoiCtx = poissonCanvasVoronoi.getContext('2d');
-  const poisson = new PoissonSample(height, width, 3, 30);
+  const poissonCanvasDemoCtx = poissonCanvasDemo.getContext('2d');
+  const poisson = new PoissonSample(height, width, 3, 30, 400);
   const poissonPoints = poisson.load();
   const bestCandidate = new BestCandidateSample(height, width, poissonPoints.length, 20);
   const bestCandidatePoints = bestCandidate.load();
@@ -114,6 +116,7 @@ export default function renderImages(img) {
   drawNextStipplingPoint(poissonPoints, poissonCanvasStipplingCtx);
   drawVoronoi(poissonPoints.map( point => point.coords), poissonCanvasVoronoiCtx);
   drawNextMapLine(poissonPoints, poissonCanvasMapCtx, 2);
+  drawNextStep(poisson.steps, poissonCanvasDemoCtx);
 
   const bestCandCanvasStipplingCtx = bestCandCanvasStippling.getContext('2d');
   const bestCandCanvasVoronoiCtx = bestCandCanvasVoronoi.getContext('2d');
@@ -121,7 +124,7 @@ export default function renderImages(img) {
 
   drawNextStipplingPoint(bestCandidatePoints, bestCandCanvasStipplingCtx);
   drawVoronoi(bestCandidatePoints.map(point => point.coords), bestCandCanvasVoronoiCtx);
-  drawNextMapLine(bestCandidatePoints, bestCandCanvasMapCtx, 1);
+  drawNextMapLine(bestCandidatePoints, bestCandCanvasMapCtx, 2);
 
   const uniformCanvasStipplingCtx = uniformCanvasStippling.getContext('2d');
   const uniformCanvasVoronoiCtx = uniformCanvasVoronoi.getContext('2d');
@@ -153,6 +156,117 @@ export default function renderImages(img) {
       fillLine(context, prevPoint, newPoint);
     }
     setTimeout( () => drawNextMapLine(points.slice(1), context, lineWidth), 10);
+  }
+
+  function drawStepResult(steps, context) {
+    const step = steps[0];
+    const refCoords = step.refCoords;
+    const candidates = step.candidates;
+
+    step.candidates.forEach (candidate => {
+      context.beginPath();
+      context.arc(candidate[0], candidate[1], 1, 0, 2*Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#ffffff";
+      context.fill();
+    });
+
+    if (step.chosen) {
+      context.beginPath();
+      context.arc(refCoords[0], refCoords[1], 1, 0, 2*Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#2d00ff";
+      context.fill();
+
+      context.beginPath();
+      context.arc(step.chosen[0], step.chosen[1], 1, 0, 2*Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#2d00ff";
+      context.fill();
+    } else {
+      context.beginPath();
+      context.arc(refCoords[0], refCoords[1], 1, 0, 2*Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#000000";
+      context.fill();
+    }
+
+    setTimeout( () => drawNextStep(steps.slice(1), context), 1000);
+  }
+
+  function drawNextCandidate(steps, candidates, context) {
+    if (candidates.length === 0) {
+      drawNextStep(steps.slice(1), context);
+      return;
+    }
+
+    const candidate = candidates[0];
+    context.beginPath();
+    context.arc(candidate[0], candidate[1], 4, 0, 2*Math.PI);
+    context.lineWidth = 5;
+    context.strokeStyle = "black";
+    context.fillStyle = "#f3b414";
+    context.fill();
+
+    setTimeout( () => drawNextCandidate(steps, candidates.slice(1), context), 50);
+  }
+
+  function drawStepCandidates(steps, context) {
+    const step = steps[0];
+    // const refCoords = step.refCoords;
+    const candidates = step.candidateCoords;
+    const refCoords = step.refCoords;
+    context.beginPath();
+    context.arc(refCoords[0], refCoords[1], 4, 0, 2*Math.PI);
+    context.lineWidth = 5;
+    context.strokeStyle = "black";
+    context.fillStyle = "#fb3c3c";
+    context.fill();
+    setTimeout( () => drawNextCandidate(steps, candidates, context), 50);
+
+    // context.beginPath();
+    // context.arc(refCoords[0], refCoords[1], 1, 0, 2*Math.PI);
+    // context.lineWidth = 0;
+    // context.fillStyle = "#009e42";
+    // context.fill();
+
+    // step.candidates.forEach (candidate => {
+    //   context.beginPath();
+    //   context.arc(candidate[0], candidate[1], 1, 0, 2*Math.PI);
+    //   context.lineWidth = 0;
+    //   context.fillStyle = "#009e42";
+    //   context.fill();
+    // });
+    //
+    // setTimeout( () => drawNextStep(steps.slice(1), context), 100);
+
+    // setTimeout( () => drawStepResult(steps, context), 1000);
+  }
+
+  function drawNextStep(steps, context) {
+    if (steps.length === 0) { return; }
+
+    const step = steps[0];
+    context.clearRect(0, 0, width, height);
+    step.points.forEach( point => {
+      context.beginPath();
+      context.arc(point[0], point[1], 4, 0, 2*Math.PI);
+      context.lineWidth = 5;
+      context.strokeStyle = "black";
+      context.fillStyle = "#827474";
+      context.fill();
+    });
+
+    step.actives.forEach( point => {
+      context.beginPath();
+      context.arc(point[0], point[1], 4, 0, 2*Math.PI);
+      context.lineWidth = 5;
+      context.strokeStyle = "black";
+      context.fillStyle = "#08da88";
+      context.fill();
+    });
+
+    setTimeout( () => drawStepCandidates(steps, context), 500);
   }
 }
 

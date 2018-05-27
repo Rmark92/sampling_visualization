@@ -1,5 +1,5 @@
 export default class poissonSample {
-  constructor(canvasHeight, canvasWidth, radius, maxCandidates) {
+  constructor(canvasHeight, canvasWidth, radius, maxCandidates, stepCanvasDim) {
     this.cellSize = Math.floor(radius / Math.sqrt(2));
     this.maxCandidates = maxCandidates;
     this.radius = radius;
@@ -7,11 +7,20 @@ export default class poissonSample {
     this.canvasWidth = canvasWidth;
     this.gridHeight = Math.ceil(canvasHeight / this.cellSize) + 1;
     this.gridWidth = Math.ceil(canvasWidth / this.cellSize) + 1;
+    this.stepCanvasDim = stepCanvasDim;
+    this.stepDisplayRange = Math.min(50, canvasWidth, canvasHeight);
+  }
+
+  reset() {
     this.grid = this.initGrid();
     this.points = [];
     this.numPoints = 0;
     this.activePoints = [];
-    // this.steps = [];
+    this.steps = [];
+    this.stepPoints = [];
+    this.stepActives = [];
+    this.stepPointChosen = null;
+    this.inactiveStepPoint = null;
   }
 
   initGrid() {
@@ -22,6 +31,70 @@ export default class poissonSample {
       grid[rowIdx] = new Array(this.gridWidth);
     }
     return grid;
+  }
+
+  inStepRange(coords) {
+    return Math.max(coords[0], coords[1]) <= this.stepDisplayRange;
+  }
+
+  toStepDisplayCoords(coords) {
+    return coords.map( coord => coord * (this.stepCanvasDim / this.stepDisplayRange) );
+  }
+
+  insertStepPoint(point) {
+    if (!this.inStepRange(point.coords)) { return; }
+
+    this.stepPoints.push(this.toStepDisplayCoords(point.coords));
+    this.stepActives.push(this.toStepDisplayCoords(point.coords));
+  }
+
+  insertStep(stepData) {
+    const step = {};
+    if (!this.inStepRange(stepData.refCoords)) { return; }
+
+    step.refCoords = this.toStepDisplayCoords(stepData.refCoords);
+    step.candidateCoords = stepData.candidateCoords
+                                   .filter( coords => this.inStepRange(coords))
+                                   .map( coords => this.toStepDisplayCoords(coords));
+    // if (stepData.chosen) {
+    //   this.stepPoints = this.stepPoints
+    //                         .slice(0)
+    //                         .concat([this.toStepDisplayCoords(stepData.chosen)]);
+    // }
+
+    if (this.inactiveStepPoint) {
+      this.stepActives = this.stepActives
+                             .filter( (coords) => (
+                               coords[0] !== this.inactiveStepPoint[0] &&
+                               coords[1] !== this.inactiveStepPoint[1]
+                             ));
+    }
+
+    if (this.stepPointChosen) {
+      this.stepPoints = this.stepPoints
+                            .slice(0)
+                            .concat([this.toStepDisplayCoords(this.stepPointChosen)]);
+      this.stepActives = this.stepActives
+                             .slice(0)
+                             .concat([this.toStepDisplayCoords(this.stepPointChosen)]);
+      this.inactiveStepPoint = null;
+    }
+
+    if (stepData.chosen) {
+      this.stepPointChosen = stepData.chosen;
+      this.inactiveStepPoint = null;
+    } else {
+      this.inactiveStepPoint = step.refCoords;
+      this.stepPointChosen = null;
+    }
+
+    // if (!stepData.chosen) {
+    //   this.stepActives = this.stepActives
+    //                          .filter( (coords) => coords[0] !== refCoords[0] && coords[1] !== refCoords[1]);
+    // }
+    step.actives = this.stepActives;
+    step.points = this.stepPoints;
+    this.steps.push(step);
   }
 
   // pointToGridCoords(point) {
@@ -95,12 +168,21 @@ export default class poissonSample {
     return true;
   }
 
-  load() {
+
+
+  demo(drawFunc) {
+    this.reset();
     const p0 = { coords: [Math.round(Math.random() * this.canvasWidth),
                           Math.round(Math.random() * this.canvasHeight)],
                };
-    // const p0 = [Math.round(Math.random() * this.canvasWidth),
-    //             Math.round(Math.random() * this.canvasHeight)];
+
+  }
+
+  load() {
+    this.reset();
+    const p0 = { coords: [Math.round(Math.random() * this.canvasWidth),
+                          Math.round(Math.random() * this.canvasHeight)],
+               };
     this.insert(p0, null);
 
     let refIdx;
@@ -110,9 +192,12 @@ export default class poissonSample {
     let candidatePoint;
     let theta;
     let dist;
+    let stepData;
     while (this.activePoints.length > 0) {
       refIdx = Math.floor(Math.random() * this.activePoints.length);
       refPoint = this.activePoints[refIdx];
+      stepData = { refCoords: refPoint.coords, candidateCoords: [] };
+      // step = { candidates: [], points: this.points.slice(0) };
       candidateMaxReached = true;
       for (numCandidates = 0; numCandidates <= this.maxCandidates; numCandidates++) {
         theta = Math.random() * 360;
@@ -120,8 +205,13 @@ export default class poissonSample {
         candidatePoint = { coords: [dist * Math.cos(theta) + refPoint.coords[0],
                                     dist * Math.sin(theta) + refPoint.coords[1]],
                            refCoords: refPoint.coords};
+        stepData.candidateCoords.push(candidatePoint.coords);
         if (this.isValidPoint(candidatePoint)) {
           this.insert(candidatePoint);
+          if (!this.inStepRange(refPoint.coords) && this.inStepRange(candidatePoint.coords)) {
+            this.insertStepPoint(candidatePoint);
+          }
+          stepData.chosen = candidatePoint.coords;
           candidateMaxReached = false;
           break;
         }
@@ -129,6 +219,7 @@ export default class poissonSample {
       if (candidateMaxReached) {
         this.activePoints.splice(refIdx, 1);
       }
+      this.insertStep(stepData);
     }
     return this.points;
   }

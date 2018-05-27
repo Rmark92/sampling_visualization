@@ -47,6 +47,10 @@ export default class BestCandidateSample {
     this.quadTree.add(point.coords);
   }
 
+  demo() {
+    
+  }
+
   load() {
     const p0 = this.generateRandomPoint();
     this.insert(p0);

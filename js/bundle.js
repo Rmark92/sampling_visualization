@@ -9593,8 +9593,9 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function renderImages(img) {
   var imageCanv = document.getElementById('image-canvas');
   var poissonCanvasStippling = document.getElementById("poisson-canvas-stippling");
-  var poissonCanvasMap = document.getElementById("poisson-canvas-map");
   var poissonCanvasVoronoi = document.getElementById("poisson-canvas-voronoi");
+  var poissonCanvasMap = document.getElementById("poisson-canvas-map");
+  var poissonCanvasDemo = document.getElementById("poisson-canvas-demo");
   var bestCandCanvasStippling = document.getElementById("bestcand-canvas-stippling");
   var bestCandCanvasVoronoi = document.getElementById("bestcand-canvas-voronoi");
   var bestCandCanvasMap = document.getElementById("bestcand-canvas-map");
@@ -9689,7 +9690,8 @@ function renderImages(img) {
   var poissonCanvasStipplingCtx = poissonCanvasStippling.getContext('2d');
   var poissonCanvasMapCtx = poissonCanvasMap.getContext('2d');
   var poissonCanvasVoronoiCtx = poissonCanvasVoronoi.getContext('2d');
-  var poisson = new _poisson_disc_generator2.default(height, width, 3, 30);
+  var poissonCanvasDemoCtx = poissonCanvasDemo.getContext('2d');
+  var poisson = new _poisson_disc_generator2.default(height, width, 3, 30, 400);
   var poissonPoints = poisson.load();
   var bestCandidate = new _best_candidate_disc_generator2.default(height, width, poissonPoints.length, 20);
   var bestCandidatePoints = bestCandidate.load();
@@ -9702,6 +9704,7 @@ function renderImages(img) {
     return point.coords;
   }), poissonCanvasVoronoiCtx);
   drawNextMapLine(poissonPoints, poissonCanvasMapCtx, 2);
+  drawNextStep(poisson.steps, poissonCanvasDemoCtx);
 
   var bestCandCanvasStipplingCtx = bestCandCanvasStippling.getContext('2d');
   var bestCandCanvasVoronoiCtx = bestCandCanvasVoronoi.getContext('2d');
@@ -9711,7 +9714,7 @@ function renderImages(img) {
   drawVoronoi(bestCandidatePoints.map(function (point) {
     return point.coords;
   }), bestCandCanvasVoronoiCtx);
-  drawNextMapLine(bestCandidatePoints, bestCandCanvasMapCtx, 1);
+  drawNextMapLine(bestCandidatePoints, bestCandCanvasMapCtx, 2);
 
   var uniformCanvasStipplingCtx = uniformCanvasStippling.getContext('2d');
   var uniformCanvasVoronoiCtx = uniformCanvasVoronoi.getContext('2d');
@@ -9752,6 +9755,127 @@ function renderImages(img) {
     setTimeout(function () {
       return drawNextMapLine(points.slice(1), context, lineWidth);
     }, 10);
+  }
+
+  function drawStepResult(steps, context) {
+    var step = steps[0];
+    var refCoords = step.refCoords;
+    var candidates = step.candidates;
+
+    step.candidates.forEach(function (candidate) {
+      context.beginPath();
+      context.arc(candidate[0], candidate[1], 1, 0, 2 * Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#ffffff";
+      context.fill();
+    });
+
+    if (step.chosen) {
+      context.beginPath();
+      context.arc(refCoords[0], refCoords[1], 1, 0, 2 * Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#2d00ff";
+      context.fill();
+
+      context.beginPath();
+      context.arc(step.chosen[0], step.chosen[1], 1, 0, 2 * Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#2d00ff";
+      context.fill();
+    } else {
+      context.beginPath();
+      context.arc(refCoords[0], refCoords[1], 1, 0, 2 * Math.PI);
+      context.lineWidth = 0;
+      context.fillStyle = "#000000";
+      context.fill();
+    }
+
+    setTimeout(function () {
+      return drawNextStep(steps.slice(1), context);
+    }, 1000);
+  }
+
+  function drawNextCandidate(steps, candidates, context) {
+    if (candidates.length === 0) {
+      drawNextStep(steps.slice(1), context);
+      return;
+    }
+
+    var candidate = candidates[0];
+    context.beginPath();
+    context.arc(candidate[0], candidate[1], 4, 0, 2 * Math.PI);
+    context.lineWidth = 5;
+    context.strokeStyle = "black";
+    context.fillStyle = "#f3b414";
+    context.fill();
+
+    setTimeout(function () {
+      return drawNextCandidate(steps, candidates.slice(1), context);
+    }, 50);
+  }
+
+  function drawStepCandidates(steps, context) {
+    var step = steps[0];
+    // const refCoords = step.refCoords;
+    var candidates = step.candidateCoords;
+    var refCoords = step.refCoords;
+    context.beginPath();
+    context.arc(refCoords[0], refCoords[1], 4, 0, 2 * Math.PI);
+    context.lineWidth = 5;
+    context.strokeStyle = "black";
+    context.fillStyle = "#fb3c3c";
+    context.fill();
+    setTimeout(function () {
+      return drawNextCandidate(steps, candidates, context);
+    }, 50);
+
+    // context.beginPath();
+    // context.arc(refCoords[0], refCoords[1], 1, 0, 2*Math.PI);
+    // context.lineWidth = 0;
+    // context.fillStyle = "#009e42";
+    // context.fill();
+
+    // step.candidates.forEach (candidate => {
+    //   context.beginPath();
+    //   context.arc(candidate[0], candidate[1], 1, 0, 2*Math.PI);
+    //   context.lineWidth = 0;
+    //   context.fillStyle = "#009e42";
+    //   context.fill();
+    // });
+    //
+    // setTimeout( () => drawNextStep(steps.slice(1), context), 100);
+
+    // setTimeout( () => drawStepResult(steps, context), 1000);
+  }
+
+  function drawNextStep(steps, context) {
+    if (steps.length === 0) {
+      return;
+    }
+
+    var step = steps[0];
+    context.clearRect(0, 0, width, height);
+    step.points.forEach(function (point) {
+      context.beginPath();
+      context.arc(point[0], point[1], 4, 0, 2 * Math.PI);
+      context.lineWidth = 5;
+      context.strokeStyle = "black";
+      context.fillStyle = "#827474";
+      context.fill();
+    });
+
+    step.actives.forEach(function (point) {
+      context.beginPath();
+      context.arc(point[0], point[1], 4, 0, 2 * Math.PI);
+      context.lineWidth = 5;
+      context.strokeStyle = "black";
+      context.fillStyle = "#08da88";
+      context.fill();
+    });
+
+    setTimeout(function () {
+      return drawStepCandidates(steps, context);
+    }, 500);
   }
 }
 
@@ -9846,7 +9970,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var poissonSample = function () {
-  function poissonSample(canvasHeight, canvasWidth, radius, maxCandidates) {
+  function poissonSample(canvasHeight, canvasWidth, radius, maxCandidates, stepCanvasDim) {
     _classCallCheck(this, poissonSample);
 
     this.cellSize = Math.floor(radius / Math.sqrt(2));
@@ -9856,14 +9980,24 @@ var poissonSample = function () {
     this.canvasWidth = canvasWidth;
     this.gridHeight = Math.ceil(canvasHeight / this.cellSize) + 1;
     this.gridWidth = Math.ceil(canvasWidth / this.cellSize) + 1;
-    this.grid = this.initGrid();
-    this.points = [];
-    this.numPoints = 0;
-    this.activePoints = [];
-    // this.steps = [];
+    this.stepCanvasDim = stepCanvasDim;
+    this.stepDisplayRange = Math.min(50, canvasWidth, canvasHeight);
   }
 
   _createClass(poissonSample, [{
+    key: "reset",
+    value: function reset() {
+      this.grid = this.initGrid();
+      this.points = [];
+      this.numPoints = 0;
+      this.activePoints = [];
+      this.steps = [];
+      this.stepPoints = [];
+      this.stepActives = [];
+      this.stepPointChosen = null;
+      this.inactiveStepPoint = null;
+    }
+  }, {
     key: "initGrid",
     value: function initGrid() {
       var rowIdx = void 0;
@@ -9873,6 +10007,80 @@ var poissonSample = function () {
         grid[rowIdx] = new Array(this.gridWidth);
       }
       return grid;
+    }
+  }, {
+    key: "inStepRange",
+    value: function inStepRange(coords) {
+      return Math.max(coords[0], coords[1]) <= this.stepDisplayRange;
+    }
+  }, {
+    key: "toStepDisplayCoords",
+    value: function toStepDisplayCoords(coords) {
+      var _this = this;
+
+      return coords.map(function (coord) {
+        return coord * (_this.stepCanvasDim / _this.stepDisplayRange);
+      });
+    }
+  }, {
+    key: "insertStepPoint",
+    value: function insertStepPoint(point) {
+      if (!this.inStepRange(point.coords)) {
+        return;
+      }
+
+      this.stepPoints.push(this.toStepDisplayCoords(point.coords));
+      this.stepActives.push(this.toStepDisplayCoords(point.coords));
+    }
+  }, {
+    key: "insertStep",
+    value: function insertStep(stepData) {
+      var _this2 = this;
+
+      var step = {};
+      if (!this.inStepRange(stepData.refCoords)) {
+        return;
+      }
+
+      step.refCoords = this.toStepDisplayCoords(stepData.refCoords);
+      step.candidateCoords = stepData.candidateCoords.filter(function (coords) {
+        return _this2.inStepRange(coords);
+      }).map(function (coords) {
+        return _this2.toStepDisplayCoords(coords);
+      });
+      // if (stepData.chosen) {
+      //   this.stepPoints = this.stepPoints
+      //                         .slice(0)
+      //                         .concat([this.toStepDisplayCoords(stepData.chosen)]);
+      // }
+
+      if (this.inactiveStepPoint) {
+        this.stepActives = this.stepActives.filter(function (coords) {
+          return coords[0] !== _this2.inactiveStepPoint[0] && coords[1] !== _this2.inactiveStepPoint[1];
+        });
+      }
+
+      if (this.stepPointChosen) {
+        this.stepPoints = this.stepPoints.slice(0).concat([this.toStepDisplayCoords(this.stepPointChosen)]);
+        this.stepActives = this.stepActives.slice(0).concat([this.toStepDisplayCoords(this.stepPointChosen)]);
+        this.inactiveStepPoint = null;
+      }
+
+      if (stepData.chosen) {
+        this.stepPointChosen = stepData.chosen;
+        this.inactiveStepPoint = null;
+      } else {
+        this.inactiveStepPoint = step.refCoords;
+        this.stepPointChosen = null;
+      }
+
+      // if (!stepData.chosen) {
+      //   this.stepActives = this.stepActives
+      //                          .filter( (coords) => coords[0] !== refCoords[0] && coords[1] !== refCoords[1]);
+      // }
+      step.actives = this.stepActives;
+      step.points = this.stepPoints;
+      this.steps.push(step);
     }
 
     // pointToGridCoords(point) {
@@ -9966,12 +10174,18 @@ var poissonSample = function () {
       return true;
     }
   }, {
-    key: "load",
-    value: function load() {
+    key: "demo",
+    value: function demo(drawFunc) {
+      this.reset();
       var p0 = { coords: [Math.round(Math.random() * this.canvasWidth), Math.round(Math.random() * this.canvasHeight)]
       };
-      // const p0 = [Math.round(Math.random() * this.canvasWidth),
-      //             Math.round(Math.random() * this.canvasHeight)];
+    }
+  }, {
+    key: "load",
+    value: function load() {
+      this.reset();
+      var p0 = { coords: [Math.round(Math.random() * this.canvasWidth), Math.round(Math.random() * this.canvasHeight)]
+      };
       this.insert(p0, null);
 
       var refIdx = void 0;
@@ -9981,17 +10195,25 @@ var poissonSample = function () {
       var candidatePoint = void 0;
       var theta = void 0;
       var dist = void 0;
+      var stepData = void 0;
       while (this.activePoints.length > 0) {
         refIdx = Math.floor(Math.random() * this.activePoints.length);
         refPoint = this.activePoints[refIdx];
+        stepData = { refCoords: refPoint.coords, candidateCoords: [] };
+        // step = { candidates: [], points: this.points.slice(0) };
         candidateMaxReached = true;
         for (numCandidates = 0; numCandidates <= this.maxCandidates; numCandidates++) {
           theta = Math.random() * 360;
           dist = Math.random() * this.radius + this.radius;
           candidatePoint = { coords: [dist * Math.cos(theta) + refPoint.coords[0], dist * Math.sin(theta) + refPoint.coords[1]],
             refCoords: refPoint.coords };
+          stepData.candidateCoords.push(candidatePoint.coords);
           if (this.isValidPoint(candidatePoint)) {
             this.insert(candidatePoint);
+            if (!this.inStepRange(refPoint.coords) && this.inStepRange(candidatePoint.coords)) {
+              this.insertStepPoint(candidatePoint);
+            }
+            stepData.chosen = candidatePoint.coords;
             candidateMaxReached = false;
             break;
           }
@@ -9999,6 +10221,7 @@ var poissonSample = function () {
         if (candidateMaxReached) {
           this.activePoints.splice(refIdx, 1);
         }
+        this.insertStep(stepData);
       }
       return this.points;
     }
@@ -25001,6 +25224,9 @@ var BestCandidateSample = function () {
       this.points.push(point);
       this.quadTree.add(point.coords);
     }
+  }, {
+    key: "demo",
+    value: function demo() {}
   }, {
     key: "load",
     value: function load() {
