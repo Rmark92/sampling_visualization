@@ -96,19 +96,19 @@ export default class BestCandidateSample {
       this.quadTree.add(bestCandidate.coords);
       this.points.push(bestCandidate);
       this.colorBest(bestCandidate);
-      setTimeout( () => this.demoNextCandidates(), 1000);
+      setTimeout( () => this.demoNextCandidates(), 2000);
     } else {
       const candidate = this.generateRandomPoint();
       const nearestNeighbor = this.quadTree.find(...candidate.coords);
       const distance = this.distance(nearestNeighbor, candidate.coords);
       setTimeout( () => {
         this.drawCandidate(candidate);
-        setTimeout( () => this.drawLine(candidate.coords, nearestNeighbor), 100);
+        setTimeout( () => this.drawLine(candidate.coords, nearestNeighbor), 40);
         if (distance > bestDistance) {
           bestCandidate = candidate;
           bestDistance = distance;
         }
-        setTimeout( () => this.demoNextCandidate(candidateAttempts + 1, bestCandidate, bestDistance), 500);
+        setTimeout( () => this.demoNextCandidate(candidateAttempts + 1, bestCandidate, bestDistance), 50);
       }, 500);
     }
   }
@@ -120,7 +120,7 @@ export default class BestCandidateSample {
     } else {
       this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       this.drawPoints();
-      setTimeout( () => this.demoNextCandidate(0, null, 0), 1000);
+      setTimeout( () => this.demoNextCandidate(0, null, 0), 50);
     }
   }
 

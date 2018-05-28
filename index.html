@@ -7,6 +7,17 @@
   </head>
   <body>
     <canvas id="image-canvas" width="400" height="400"></canvas>
+    <form className="sampling-selection-form">
+      <div className="distribution-select-input">
+        <select>
+          <option value="poisson">Poisson</option>
+          <option value="best-candidate">Best Candidate</option>
+          <option value="uniform-random">Uniform Random</option>
+          <option value="uniform">Uniform</option>
+        </select>
+        <button type="submit">Render</button>
+      </div>
+    </form>
     <div className="rendered-canvases">
       <div className="poisson-canvases">
         <canvas id="poisson-canvas-stippling" width="400" height="400"></canvas>
