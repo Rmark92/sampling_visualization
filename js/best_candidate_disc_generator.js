@@ -1,10 +1,9 @@
 import * as d3 from "d3";
 
 export default class BestCandidateSample {
-  constructor(canvas, numDots, numCandidates) {
-    this.canvasHeight = canvas.height;
-    this.canvasWidth = canvas.width;
-    this.context = canvas.getContext('2d');
+  constructor(maxHeight, maxWidth, numDots, numCandidates) {
+    this.canvasHeight = maxHeight;
+    this.canvasWidth = maxWidth;
     this.numDots = numDots;
     this.numCandidates = numCandidates;
   }
@@ -124,8 +123,9 @@ export default class BestCandidateSample {
     }
   }
 
-  demo() {
+  demo(canvas) {
     this.reset();
+    this.context = canvas.getContext('2d');
     const p0 = this.generateRandomPoint();
     this.insert(p0);
     this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);

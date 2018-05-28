@@ -1,14 +1,14 @@
 export default class poissonSample {
-  constructor(canvas, radius, maxCandidates) {
-    this.canvas = canvas;
-    this.context = canvas.getContext('2d');
+  constructor(maxHeight, maxWidth, radius, maxCandidates) {
+    // this.canvas = canvas;
+    // this.context = canvas.getContext('2d');
     this.cellSize = Math.floor(radius / Math.sqrt(2));
     this.maxCandidates = maxCandidates;
     this.radius = radius;
-    this.canvasHeight = canvas.height;
-    this.canvasWidth = canvas.width;
-    this.gridHeight = Math.ceil(this.canvasHeight / this.cellSize) + 1;
-    this.gridWidth = Math.ceil(this.canvasWidth / this.cellSize) + 1;
+    this.canvasHeight = maxHeight;
+    this.canvasWidth = maxWidth;
+    this.gridHeight = Math.ceil(maxHeight / this.cellSize) + 1;
+    this.gridWidth = Math.ceil(maxWidth / this.cellSize) + 1;
   }
 
   reset() {
@@ -183,13 +183,14 @@ export default class poissonSample {
     }
   }
 
-  demo() {
+  demo(canvas) {
     this.reset();
     const p0 = { coords: [Math.round(Math.random() * this.canvasWidth),
                           Math.round(Math.random() * this.canvasHeight)],
                };
 
     this.insert(p0);
+    this.context = canvas.getContext('2d');
     this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
 
