@@ -10856,12 +10856,12 @@ document.addEventListener("DOMContentLoaded", function () {
       switch (type) {
         case "poisson":
           points = poisson.load();
-          imageRenderer.render(points, true);
+          imageRenderer.render(points, 'poisson');
           break;
         // return poissonPoints;
         case "best-candidate":
           points = bestCandidate.load();
-          imageRenderer.render(points, true);
+          imageRenderer.render(points, 'best-candidate');
           break;
         // return bestCandidate.load();
         case "uniform-random":
@@ -25356,9 +25356,21 @@ var _d = __webpack_require__(50);
 
 var d3 = _interopRequireWildcard(_d);
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+var _stippling_canvas_container = __webpack_require__(512);
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _stippling_canvas_container2 = _interopRequireDefault(_stippling_canvas_container);
+
+var _voronoi_canvas_container = __webpack_require__(513);
+
+var _voronoi_canvas_container2 = _interopRequireDefault(_voronoi_canvas_container);
+
+var _map_canvas_container = __webpack_require__(514);
+
+var _map_canvas_container2 = _interopRequireDefault(_map_canvas_container);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -25373,79 +25385,79 @@ var ImageRenderer = function () {
     this.renderedImageCanvases = document.getElementById('sampled-canvases');
     // debugger;
   }
+  //
+  // renderCanvasContainers(...canvasContainers) {
+  //   canvasContainers.forEach((container) => {
+  //     this.renderedImageCanvases.appendChild(container.htmlContent);
+  //   });
+  // }
 
   _createClass(ImageRenderer, [{
-    key: 'renderCanvases',
-    value: function renderCanvases() {
-      var _this = this;
-
-      for (var _len = arguments.length, canvases = Array(_len), _key = 0; _key < _len; _key++) {
-        canvases[_key] = arguments[_key];
-      }
-
-      canvases.forEach(function (canvas) {
-        canvas.height = _this.height;
-        canvas.width = _this.width;
-        _this.renderedImageCanvases.appendChild(canvas);
-      });
-    }
-  }, {
     key: 'clearCanvases',
     value: function clearCanvases() {
       this.clearChildren(this.renderedImageCanvases);
     }
   }, {
     key: 'render',
-    value: function render(points) {
-      var withMap = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
+    value: function render(points, mapType) {
       this.clearCanvases();
-      this.stipplingCanvas = document.createElement('canvas');
-      this.voronoiCanvas = document.createElement('canvas');
-      this.renderCanvases(this.stipplingCanvas, this.voronoiCanvas);
-      this.drawNextStipplingPoint(points, this.stipplingCanvas.getContext('2d'));
-      this.drawVoronoi(points, this.voronoiCanvas.getContext('2d'));
-      if (withMap) {
-        this.mapCanvas = document.createElement('canvas');
-        this.renderCanvases(this.mapCanvas);
-        this.drawNextMapLine(points, this.mapCanvas.getContext('2d'));
+      // this.renderedImageCanvases.setAttribute("style", "display:flex");
+      var stipplingCanvasContainer = new _stippling_canvas_container2.default(this.height, this.width, this.maxDotRadius);
+      this.renderedImageCanvases.appendChild(stipplingCanvasContainer.htmlContainer);
+      stipplingCanvasContainer.renderSample(this.imgContext, points, this.maxDotRadius);
+      var voronoiCanvasContainer = new _voronoi_canvas_container2.default(this.height, this.width);
+      this.renderedImageCanvases.appendChild(voronoiCanvasContainer.htmlContainer);
+      voronoiCanvasContainer.renderSample(this.imgContext, points);
+      if (mapType) {
+        var mapCanvasContainer = new _map_canvas_container2.default(this.height, this.width, mapType);
+        this.renderedImageCanvases.appendChild(mapCanvasContainer.htmlContainer);
+        mapCanvasContainer.renderSample(this.imgContext, points);
       }
-    }
-  }, {
-    key: 'drawPoint',
-    value: function drawPoint(point, context) {
-      var pixelData = this.imgContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
-      var grayScaleVal = pixelData.reduce(function (memo, val) {
-        return memo + val;
-      }, 0) / 3;
-      var dotRadius = (255 - grayScaleVal) / 255 * (this.maxDotRadius / 2);
-      context.beginPath();
-      context.arc(point[0], point[1], dotRadius, 0, 2 * Math.PI);
-      context.fill();
-    }
-  }, {
-    key: 'getRgb',
-    value: function getRgb(point) {
-      var _imgContext;
 
-      var rgbVals = Array.from((_imgContext = this.imgContext).getImageData.apply(_imgContext, _toConsumableArray(point).concat([1, 1])).data.slice(0, 3));
-      return 'rgb(' + rgbVals.join(', ') + ')';
+      // this.renderCanvasContainers(stipplingCanvasContainer, voronoiCanvasContainer);
+      // this.stipplingCanvasContainer = document.createElement('div');
+      // this.voronoiCanvasContainer = document.createElement('div');
+      // this.renderCanvases(this.stipplingCanvas, this.voronoiCanvas);
+      // this.drawNextStipplingPoint(points, this.stipplingCanvas.getContext('2d'));
+      // this.drawVoronoi(points, this.voronoiCanvas.getContext('2d'));
+      // if (withMap) {
+      //   this.mapCanvas = document.createElement('canvas');
+      //   this.renderCanvases(this.mapCanvas);
+      //   this.drawNextMapLine(points, this.mapCanvas.getContext('2d'));
+      // }
     }
-  }, {
-    key: 'fillLine',
-    value: function fillLine(context, pointA, pointB) {
-      var gradient = context.createLinearGradient(pointA[0], pointB[0], pointA[1], pointB[1]);
 
-      gradient.addColorStop(0, this.getRgb(pointA));
-      gradient.addColorStop(1, this.getRgb(pointB));
-      context.strokeStyle = gradient;
-      context.stroke();
-    }
+    // drawPoint(point, context) {
+    //   const pixelData = this.imgContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
+    //   const grayScaleVal = pixelData.reduce((memo, val) => memo + val, 0) / 3;
+    //   const dotRadius = (((255 - grayScaleVal) / 255)) * (this.maxDotRadius / 2);
+    //   context.beginPath();
+    //   context.arc(point[0], point[1], dotRadius, 0, 2*Math.PI);
+    //   context.fill();
+    // }
+    //
+    // getRgb(point) {
+    //   const rgbVals = Array.from(this.imgContext.getImageData(...point, 1, 1).data.slice(0, 3));
+    //   return `rgb(${rgbVals.join(', ')})`;
+    // }
+    //
+    // fillLine(context, pointA, pointB) {
+    //   const gradient = context.createLinearGradient(pointA[0],
+    //                                                 pointB[0],
+    //                                                 pointA[1],
+    //                                                 pointB[1]);
+    //
+    //   gradient.addColorStop(0, this.getRgb(pointA));
+    //   gradient.addColorStop(1, this.getRgb(pointB));
+    //   context.strokeStyle = gradient;
+    //   context.stroke();
+    // }
+
   }, {
     key: 'clearChildren',
     value: function clearChildren() {
-      for (var _len2 = arguments.length, elements = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        elements[_key2] = arguments[_key2];
+      for (var _len = arguments.length, elements = Array(_len), _key = 0; _key < _len; _key++) {
+        elements[_key] = arguments[_key];
       }
 
       elements.forEach(function (element) {
@@ -25454,43 +25466,225 @@ var ImageRenderer = function () {
         }
       });
     }
-  }, {
-    key: 'drawNextStipplingPoint',
-    value: function drawNextStipplingPoint(points, context) {
-      var _this2 = this;
+
+    // drawNextStipplingPoint(points, context) {
+    //   if (points.length === 0) { return; }
+    //   this.drawPoint(points[0].coords, context);
+    //   setTimeout( () => this.drawNextStipplingPoint(points.slice(1), context), 1);
+    // }
+    //
+    // drawNextMapLine(points, context) {
+    //   if (points.length === 0) {
+    //      return;
+    //   } else if (points[0].refCoords) {
+    //     const newPoint = points[0].coords;
+    //     const prevPoint = points[0].refCoords;
+    //     context.beginPath();
+    //     context.moveTo(prevPoint[0], prevPoint[1]);
+    //     context.lineTo(newPoint[0],newPoint[1]);
+    //     context.lineWidth = 2;
+    //     this.fillLine(context, prevPoint, newPoint);
+    //   }
+    //   setTimeout( () => this.drawNextMapLine(points.slice(1), context), 1);
+    // }
+    //
+    // drawNextPolygon(vertices, allPolyLines, context) {
+    //   const vertex = vertices[0];
+    //   const polyLines = allPolyLines[0];
+    //   if (!(vertex && polyLines)) { return; }
+    //   let rgb;
+    //   let rgbSum;
+    //   let currentPixelCoords;
+    //   let j;
+    //   // rgbSum = Array.from(imgContext.getImageData(vertex[0], vertex[1], 1, 1)
+    //   //                               .data
+    //   //                               .slice(0, 3));
+    //   rgb = Array.from(this.imgContext.getImageData(vertex[0], vertex[1], 1, 1)
+    //                               .data
+    //                               .slice(0, 3));
+    //
+    //
+    //
+    //   currentPixelCoords = [polyLines[0][0], polyLines[0][1]];
+    //   context.beginPath();
+    //   // context.fillStyle = `rgb(${rgb.join(", ")})`;
+    //   context.moveTo(...currentPixelCoords);
+    //
+    //   // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
+    //   // rgbSum[0] += rgb[0];
+    //   // rgbSum[1] += rgb[1];
+    //   // rgbSum[2] += rgb[2];
+    //
+    //   for (j = 1; j < polyLines.length; j++) {
+    //       currentPixelCoords = [polyLines[j][0], polyLines[j][1]];
+    //       // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
+    //       // rgbSum[0] += rgb[0];
+    //       // rgbSum[1] += rgb[1];
+    //       // rgbSum[2] += rgb[2];
+    //       context.lineTo(...currentPixelCoords);
+    //   }
+    //   // rgb = rgbSum.map( (sum) => sum / (polyLines.length + 1));
+    //   // debugger;
+    //   context.fillStyle = `rgb(${rgb.join(", ")})`;
+    //   context.closePath();
+    //   context.fill();
+    //
+    //   setTimeout( () => this.drawNextPolygon(vertices.slice(1), allPolyLines.slice(1), context), 1);
+    // }
+    //
+    // drawVoronoi(points, context) {
+    //   const voronoi = d3.voronoi();
+    //   voronoi.extent([[0, 0], [this.height, this.width]]);
+    //   // const voronoiCtx = context.getContext('2d');
+    //   const vertices = points.map( point => point.coords );
+    //   const polyLines = voronoi.polygons(vertices);
+    //   this.drawNextPolygon(vertices, polyLines, context);
+    // }
+
+
+  }]);
+
+  return ImageRenderer;
+}();
+
+exports.default = ImageRenderer;
+
+/***/ }),
+/* 512 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var StipplingCanvasContainer = function () {
+  function StipplingCanvasContainer(height, width) {
+    _classCallCheck(this, StipplingCanvasContainer);
+
+    this.htmlContainer = document.createElement("div");
+    this.htmlContainer.height = height + 50;
+    this.htmlContainer.width = width + 50;
+    this.title = document.createElement("h3");
+    this.title.innerHTML = "Stippling";
+    this.htmlContainer.appendChild(this.title);
+    this.canvas = document.createElement("canvas");
+    this.canvas.height = height;
+    this.canvas.width = width;
+    this.context = this.canvas.getContext('2d');
+    this.htmlContainer.appendChild(this.canvas);
+    this.description = document.createElement("p");
+    this.description.innerHTML = "For each point generated by the sample," + " dots are placed on the canvas with their" + " size determined by that point's grayscale" + " in the original image";
+    this.htmlContainer.appendChild(this.description);
+  }
+
+  _createClass(StipplingCanvasContainer, [{
+    key: "drawNextStipplingPoint",
+    value: function drawNextStipplingPoint(points) {
+      var _this = this;
 
       if (points.length === 0) {
         return;
       }
-      this.drawPoint(points[0].coords, context);
+      this.drawPoint(points[0].coords);
       setTimeout(function () {
-        return _this2.drawNextStipplingPoint(points.slice(1), context);
+        return _this.drawNextStipplingPoint(points.slice(1));
       }, 1);
     }
   }, {
-    key: 'drawNextMapLine',
-    value: function drawNextMapLine(points, context) {
-      var _this3 = this;
+    key: "drawPoint",
+    value: function drawPoint(point) {
+      var pixelData = this.imgContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
+      var grayScaleVal = pixelData.reduce(function (memo, val) {
+        return memo + val;
+      }, 0) / 3;
+      var dotRadius = (255 - grayScaleVal) / 255 * (this.maxDotRadius / 2);
+      this.context.beginPath();
+      this.context.arc(point[0], point[1], dotRadius, 0, 2 * Math.PI);
+      this.context.fill();
+    }
+  }, {
+    key: "renderSample",
+    value: function renderSample(imgContext, points, maxDotRadius) {
+      this.imgContext = imgContext;
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.maxDotRadius = maxDotRadius;
+      this.drawNextStipplingPoint(points);
+    }
+  }]);
 
-      if (points.length === 0) {
-        return;
-      } else if (points[0].refCoords) {
-        var newPoint = points[0].coords;
-        var prevPoint = points[0].refCoords;
-        context.beginPath();
-        context.moveTo(prevPoint[0], prevPoint[1]);
-        context.lineTo(newPoint[0], newPoint[1]);
-        context.lineWidth = 2;
-        this.fillLine(context, prevPoint, newPoint);
-      }
-      setTimeout(function () {
-        return _this3.drawNextMapLine(points.slice(1), context);
-      }, 1);
+  return StipplingCanvasContainer;
+}();
+
+exports.default = StipplingCanvasContainer;
+
+/***/ }),
+/* 513 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _d = __webpack_require__(50);
+
+var d3 = _interopRequireWildcard(_d);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var VoronoiCanvasContainer = function () {
+  function VoronoiCanvasContainer(height, width) {
+    _classCallCheck(this, VoronoiCanvasContainer);
+
+    this.htmlContainer = document.createElement("div");
+    this.htmlContainer.height = height + 50;
+    this.htmlContainer.width = width + 50;
+    this.title = document.createElement("h3");
+    this.title.innerHTML = "Voronoi Mosaic";
+    this.htmlContainer.appendChild(this.title);
+    this.canvas = document.createElement("canvas");
+    this.canvas.height = height;
+    this.canvas.width = width;
+    this.context = this.canvas.getContext('2d');
+    this.htmlContainer.appendChild(this.canvas);
+    this.description = document.createElement("p");
+    this.description.innerHTML = "Each point from the sample generates its" + " own Voronoi cell, where partitions of cells" + " are based on the distance between neighboring points";
+    this.htmlContainer.appendChild(this.description);
+  }
+
+  _createClass(VoronoiCanvasContainer, [{
+    key: "renderSample",
+    value: function renderSample(imgContext, points) {
+      this.imgContext = imgContext;
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      var voronoi = d3.voronoi();
+      voronoi.extent([[0, 0], [this.canvas.height, this.canvas.width]]);
+      var vertices = points.map(function (point) {
+        return point.coords;
+      });
+      var polyLines = voronoi.polygons(vertices);
+      this.drawNextPolygon(vertices, polyLines);
     }
   }, {
-    key: 'drawNextPolygon',
-    value: function drawNextPolygon(vertices, allPolyLines, context) {
-      var _this4 = this;
+    key: "drawNextPolygon",
+    value: function drawNextPolygon(vertices, allPolyLines) {
+      var _context,
+          _this = this;
 
       var vertex = vertices[0];
       var polyLines = allPolyLines[0];
@@ -25501,57 +25695,131 @@ var ImageRenderer = function () {
       var rgbSum = void 0;
       var currentPixelCoords = void 0;
       var j = void 0;
-      // rgbSum = Array.from(imgContext.getImageData(vertex[0], vertex[1], 1, 1)
-      //                               .data
-      //                               .slice(0, 3));
       rgb = Array.from(this.imgContext.getImageData(vertex[0], vertex[1], 1, 1).data.slice(0, 3));
 
       currentPixelCoords = [polyLines[0][0], polyLines[0][1]];
-      context.beginPath();
-      // context.fillStyle = `rgb(${rgb.join(", ")})`;
-      context.moveTo.apply(context, _toConsumableArray(currentPixelCoords));
-
-      // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
-      // rgbSum[0] += rgb[0];
-      // rgbSum[1] += rgb[1];
-      // rgbSum[2] += rgb[2];
+      this.context.beginPath();
+      (_context = this.context).moveTo.apply(_context, _toConsumableArray(currentPixelCoords));
 
       for (j = 1; j < polyLines.length; j++) {
+        var _context2;
+
         currentPixelCoords = [polyLines[j][0], polyLines[j][1]];
-        // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
-        // rgbSum[0] += rgb[0];
-        // rgbSum[1] += rgb[1];
-        // rgbSum[2] += rgb[2];
-        context.lineTo.apply(context, _toConsumableArray(currentPixelCoords));
+        (_context2 = this.context).lineTo.apply(_context2, _toConsumableArray(currentPixelCoords));
       }
-      // rgb = rgbSum.map( (sum) => sum / (polyLines.length + 1));
-      // debugger;
-      context.fillStyle = 'rgb(' + rgb.join(", ") + ')';
-      context.closePath();
-      context.fill();
+      this.context.fillStyle = "rgb(" + rgb.join(", ") + ")";
+      this.context.closePath();
+      this.context.fill();
 
       setTimeout(function () {
-        return _this4.drawNextPolygon(vertices.slice(1), allPolyLines.slice(1), context);
+        return _this.drawNextPolygon(vertices.slice(1), allPolyLines.slice(1));
       }, 1);
-    }
-  }, {
-    key: 'drawVoronoi',
-    value: function drawVoronoi(points, context) {
-      var voronoi = d3.voronoi();
-      voronoi.extent([[0, 0], [this.height, this.width]]);
-      // const voronoiCtx = context.getContext('2d');
-      var vertices = points.map(function (point) {
-        return point.coords;
-      });
-      var polyLines = voronoi.polygons(vertices);
-      this.drawNextPolygon(vertices, polyLines, context);
     }
   }]);
 
-  return ImageRenderer;
+  return VoronoiCanvasContainer;
 }();
 
-exports.default = ImageRenderer;
+exports.default = VoronoiCanvasContainer;
+
+/***/ }),
+/* 514 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var MapCanvasContainer = function () {
+  function MapCanvasContainer(height, width, mapType) {
+    _classCallCheck(this, MapCanvasContainer);
+
+    this.htmlContainer = document.createElement("div");
+    // this.htmlContainer.height = height + 50;
+    // this.htmlContainer.width = width + 50;
+    this.title = document.createElement("h3");
+    this.title.innerHTML = "Generation Map";
+    this.htmlContainer.appendChild(this.title);
+    this.canvas = document.createElement("canvas");
+    this.canvas.height = height;
+    this.canvas.width = width;
+    this.context = this.canvas.getContext('2d');
+    this.htmlContainer.appendChild(this.canvas);
+    this.description = document.createElement("p");
+    this.description.innerHTML = this.generateDescription(mapType);
+    this.htmlContainer.appendChild(this.description);
+  }
+
+  _createClass(MapCanvasContainer, [{
+    key: "generateDescription",
+    value: function generateDescription(mapType) {
+      switch (mapType) {
+        case 'poisson':
+          return "This image represents a tree" + " where each node's parent is the active point" + " from which it was created (see the demo for further explanation)";
+        case 'best-candidate':
+          return "This image represents a map lines" + " between each generated point and its" + " nearest neighbor at the time it was created" + " (see the demo for further explanation)";
+      }
+    }
+  }, {
+    key: "getRgb",
+    value: function getRgb(point) {
+      var _imgContext;
+
+      var rgbVals = Array.from((_imgContext = this.imgContext).getImageData.apply(_imgContext, _toConsumableArray(point).concat([1, 1])).data.slice(0, 3));
+      return "rgb(" + rgbVals.join(', ') + ")";
+    }
+  }, {
+    key: "fillLine",
+    value: function fillLine(pointA, pointB) {
+      var gradient = this.context.createLinearGradient(pointA[0], pointB[0], pointA[1], pointB[1]);
+
+      gradient.addColorStop(0, this.getRgb(pointA));
+      gradient.addColorStop(1, this.getRgb(pointB));
+      this.context.strokeStyle = gradient;
+      this.context.stroke();
+    }
+  }, {
+    key: "drawNextMapLine",
+    value: function drawNextMapLine(points) {
+      var _this = this;
+
+      if (points.length === 0) {
+        return;
+      } else if (points[0].refCoords) {
+        var newPoint = points[0].coords;
+        var prevPoint = points[0].refCoords;
+        this.context.beginPath();
+        this.context.moveTo(prevPoint[0], prevPoint[1]);
+        this.context.lineTo(newPoint[0], newPoint[1]);
+        this.context.lineWidth = 2;
+        this.fillLine(prevPoint, newPoint);
+      }
+      setTimeout(function () {
+        return _this.drawNextMapLine(points.slice(1));
+      }, 1);
+    }
+  }, {
+    key: "renderSample",
+    value: function renderSample(imgContext, points) {
+      this.imgContext = imgContext;
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.drawNextMapLine(points);
+    }
+  }]);
+
+  return MapCanvasContainer;
+}();
+
+exports.default = MapCanvasContainer;
 
 /***/ })
 /******/ ]);

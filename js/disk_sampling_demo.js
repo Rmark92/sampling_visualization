@@ -41,12 +41,12 @@ document.addEventListener("DOMContentLoaded", () => {
       switch(type) {
       case "poisson":
         points = poisson.load();
-        imageRenderer.render(points, true);
+        imageRenderer.render(points, 'poisson');
         break;
         // return poissonPoints;
       case "best-candidate":
         points = bestCandidate.load();
-        imageRenderer.render(points, true);
+        imageRenderer.render(points, 'best-candidate');
         break;
         // return bestCandidate.load();
       case "uniform-random":
