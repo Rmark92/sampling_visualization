@@ -4,12 +4,15 @@ import BestCandidateSample from './best_candidate_disc_generator';
 import UniformRandomSample from './random_disc_generator';
 import UniformSample from './uniform_disc_generator';
 import ImageRenderer from './image_renderer2';
+import PoissonDescContainer from './poisson_desc_container';
+import BestCandDescContainer from './best_cand_desc_container';
+import UniformRandomDescContainer from './uniform_rand_desc_container';
+import UniformDescContainer from './uniform_desc_container';
 
 document.addEventListener("DOMContentLoaded", () => {
   const img = new Image();
   img.src = 'images/afremov.jpg';
   img.onload = () => {
-    // renderImages(img);
     const imgCanvas = document.getElementById("image-canvas");
     const imgContext = imgCanvas.getContext('2d');
     const height = imgCanvas.height;
@@ -42,21 +45,25 @@ document.addEventListener("DOMContentLoaded", () => {
       case "poisson":
         points = poisson.load();
         imageRenderer.render(points, 'poisson');
+        (new PoissonDescContainer).render();
         break;
         // return poissonPoints;
       case "best-candidate":
         points = bestCandidate.load();
         imageRenderer.render(points, 'best-candidate');
+        (new BestCandDescContainer).render();
         break;
         // return bestCandidate.load();
       case "uniform-random":
         points = randomSample.load();
         imageRenderer.render(points);
+        (new UniformRandomDescContainer).render();
         break;
         // uniformRandomSample.load();
       case "uniform":
         points = uniform.load();
         imageRenderer.render(points);
+        (new UniformDescContainer).render();
         break;
         // return uniform.load();
       }

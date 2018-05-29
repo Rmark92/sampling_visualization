@@ -5524,7 +5524,7 @@ var poissonSample = function () {
   }, {
     key: "isInRange",
     value: function isInRange(point) {
-      return point.coords[0] > 0 && point.coords[0] < this.canvasHeight && point.coords[1] > 0 && point.coords[1] < this.canvasWidth;
+      return point.coords[0] > 0 && point.coords[0] < this.canvasWidth && point.coords[1] > 0 && point.coords[1] < this.canvasHeight;
     }
 
     // isInRange(point) {
@@ -10818,13 +10818,28 @@ var _image_renderer3 = __webpack_require__(511);
 
 var _image_renderer4 = _interopRequireDefault(_image_renderer3);
 
+var _poisson_desc_container = __webpack_require__(515);
+
+var _poisson_desc_container2 = _interopRequireDefault(_poisson_desc_container);
+
+var _best_cand_desc_container = __webpack_require__(516);
+
+var _best_cand_desc_container2 = _interopRequireDefault(_best_cand_desc_container);
+
+var _uniform_rand_desc_container = __webpack_require__(517);
+
+var _uniform_rand_desc_container2 = _interopRequireDefault(_uniform_rand_desc_container);
+
+var _uniform_desc_container = __webpack_require__(518);
+
+var _uniform_desc_container2 = _interopRequireDefault(_uniform_desc_container);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 document.addEventListener("DOMContentLoaded", function () {
   var img = new Image();
   img.src = 'images/afremov.jpg';
   img.onload = function () {
-    // renderImages(img);
     var imgCanvas = document.getElementById("image-canvas");
     var imgContext = imgCanvas.getContext('2d');
     var height = imgCanvas.height;
@@ -10857,21 +10872,25 @@ document.addEventListener("DOMContentLoaded", function () {
         case "poisson":
           points = poisson.load();
           imageRenderer.render(points, 'poisson');
+          new _poisson_desc_container2.default().render();
           break;
         // return poissonPoints;
         case "best-candidate":
           points = bestCandidate.load();
           imageRenderer.render(points, 'best-candidate');
+          new _best_cand_desc_container2.default().render();
           break;
         // return bestCandidate.load();
         case "uniform-random":
           points = randomSample.load();
           imageRenderer.render(points);
+          new _uniform_rand_desc_container2.default().render();
           break;
         // uniformRandomSample.load();
         case "uniform":
           points = uniform.load();
           imageRenderer.render(points);
+          new _uniform_desc_container2.default().render();
           break;
         // return uniform.load();
       }
@@ -25383,14 +25402,7 @@ var ImageRenderer = function () {
     this.width = width;
     this.maxDotRadius = maxDotRadius;
     this.renderedImageCanvases = document.getElementById('sampled-canvases');
-    // debugger;
   }
-  //
-  // renderCanvasContainers(...canvasContainers) {
-  //   canvasContainers.forEach((container) => {
-  //     this.renderedImageCanvases.appendChild(container.htmlContent);
-  //   });
-  // }
 
   _createClass(ImageRenderer, [{
     key: 'clearCanvases',
@@ -25401,7 +25413,6 @@ var ImageRenderer = function () {
     key: 'render',
     value: function render(points, mapType) {
       this.clearCanvases();
-      // this.renderedImageCanvases.setAttribute("style", "display:flex");
       var stipplingCanvasContainer = new _stippling_canvas_container2.default(this.height, this.width, this.maxDotRadius);
       this.renderedImageCanvases.appendChild(stipplingCanvasContainer.htmlContainer);
       stipplingCanvasContainer.renderSample(this.imgContext, points, this.maxDotRadius);
@@ -25413,46 +25424,7 @@ var ImageRenderer = function () {
         this.renderedImageCanvases.appendChild(mapCanvasContainer.htmlContainer);
         mapCanvasContainer.renderSample(this.imgContext, points);
       }
-
-      // this.renderCanvasContainers(stipplingCanvasContainer, voronoiCanvasContainer);
-      // this.stipplingCanvasContainer = document.createElement('div');
-      // this.voronoiCanvasContainer = document.createElement('div');
-      // this.renderCanvases(this.stipplingCanvas, this.voronoiCanvas);
-      // this.drawNextStipplingPoint(points, this.stipplingCanvas.getContext('2d'));
-      // this.drawVoronoi(points, this.voronoiCanvas.getContext('2d'));
-      // if (withMap) {
-      //   this.mapCanvas = document.createElement('canvas');
-      //   this.renderCanvases(this.mapCanvas);
-      //   this.drawNextMapLine(points, this.mapCanvas.getContext('2d'));
-      // }
     }
-
-    // drawPoint(point, context) {
-    //   const pixelData = this.imgContext.getImageData(point[0], point[1], 1, 1).data.slice(0, 3);
-    //   const grayScaleVal = pixelData.reduce((memo, val) => memo + val, 0) / 3;
-    //   const dotRadius = (((255 - grayScaleVal) / 255)) * (this.maxDotRadius / 2);
-    //   context.beginPath();
-    //   context.arc(point[0], point[1], dotRadius, 0, 2*Math.PI);
-    //   context.fill();
-    // }
-    //
-    // getRgb(point) {
-    //   const rgbVals = Array.from(this.imgContext.getImageData(...point, 1, 1).data.slice(0, 3));
-    //   return `rgb(${rgbVals.join(', ')})`;
-    // }
-    //
-    // fillLine(context, pointA, pointB) {
-    //   const gradient = context.createLinearGradient(pointA[0],
-    //                                                 pointB[0],
-    //                                                 pointA[1],
-    //                                                 pointB[1]);
-    //
-    //   gradient.addColorStop(0, this.getRgb(pointA));
-    //   gradient.addColorStop(1, this.getRgb(pointB));
-    //   context.strokeStyle = gradient;
-    //   context.stroke();
-    // }
-
   }, {
     key: 'clearChildren',
     value: function clearChildren() {
@@ -25466,82 +25438,6 @@ var ImageRenderer = function () {
         }
       });
     }
-
-    // drawNextStipplingPoint(points, context) {
-    //   if (points.length === 0) { return; }
-    //   this.drawPoint(points[0].coords, context);
-    //   setTimeout( () => this.drawNextStipplingPoint(points.slice(1), context), 1);
-    // }
-    //
-    // drawNextMapLine(points, context) {
-    //   if (points.length === 0) {
-    //      return;
-    //   } else if (points[0].refCoords) {
-    //     const newPoint = points[0].coords;
-    //     const prevPoint = points[0].refCoords;
-    //     context.beginPath();
-    //     context.moveTo(prevPoint[0], prevPoint[1]);
-    //     context.lineTo(newPoint[0],newPoint[1]);
-    //     context.lineWidth = 2;
-    //     this.fillLine(context, prevPoint, newPoint);
-    //   }
-    //   setTimeout( () => this.drawNextMapLine(points.slice(1), context), 1);
-    // }
-    //
-    // drawNextPolygon(vertices, allPolyLines, context) {
-    //   const vertex = vertices[0];
-    //   const polyLines = allPolyLines[0];
-    //   if (!(vertex && polyLines)) { return; }
-    //   let rgb;
-    //   let rgbSum;
-    //   let currentPixelCoords;
-    //   let j;
-    //   // rgbSum = Array.from(imgContext.getImageData(vertex[0], vertex[1], 1, 1)
-    //   //                               .data
-    //   //                               .slice(0, 3));
-    //   rgb = Array.from(this.imgContext.getImageData(vertex[0], vertex[1], 1, 1)
-    //                               .data
-    //                               .slice(0, 3));
-    //
-    //
-    //
-    //   currentPixelCoords = [polyLines[0][0], polyLines[0][1]];
-    //   context.beginPath();
-    //   // context.fillStyle = `rgb(${rgb.join(", ")})`;
-    //   context.moveTo(...currentPixelCoords);
-    //
-    //   // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
-    //   // rgbSum[0] += rgb[0];
-    //   // rgbSum[1] += rgb[1];
-    //   // rgbSum[2] += rgb[2];
-    //
-    //   for (j = 1; j < polyLines.length; j++) {
-    //       currentPixelCoords = [polyLines[j][0], polyLines[j][1]];
-    //       // rgb = Array.from(imgContext.getImageData(...currentPixelCoords, 1, 1).data.slice(0, 3));
-    //       // rgbSum[0] += rgb[0];
-    //       // rgbSum[1] += rgb[1];
-    //       // rgbSum[2] += rgb[2];
-    //       context.lineTo(...currentPixelCoords);
-    //   }
-    //   // rgb = rgbSum.map( (sum) => sum / (polyLines.length + 1));
-    //   // debugger;
-    //   context.fillStyle = `rgb(${rgb.join(", ")})`;
-    //   context.closePath();
-    //   context.fill();
-    //
-    //   setTimeout( () => this.drawNextPolygon(vertices.slice(1), allPolyLines.slice(1), context), 1);
-    // }
-    //
-    // drawVoronoi(points, context) {
-    //   const voronoi = d3.voronoi();
-    //   voronoi.extent([[0, 0], [this.height, this.width]]);
-    //   // const voronoiCtx = context.getContext('2d');
-    //   const vertices = points.map( point => point.coords );
-    //   const polyLines = voronoi.polygons(vertices);
-    //   this.drawNextPolygon(vertices, polyLines, context);
-    // }
-
-
   }]);
 
   return ImageRenderer;
@@ -25820,6 +25716,224 @@ var MapCanvasContainer = function () {
 }();
 
 exports.default = MapCanvasContainer;
+
+/***/ }),
+/* 515 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _algo_desc_container = __webpack_require__(519);
+
+var _algo_desc_container2 = _interopRequireDefault(_algo_desc_container);
+
+var _poisson_disc_generator = __webpack_require__(90);
+
+var _poisson_disc_generator2 = _interopRequireDefault(_poisson_disc_generator);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PoissonDescContainer = function (_AlgoDescContainer) {
+  _inherits(PoissonDescContainer, _AlgoDescContainer);
+
+  function PoissonDescContainer() {
+    _classCallCheck(this, PoissonDescContainer);
+
+    var title = "Poisson Disc Sampling";
+    var description = "A poisson disc sample accomplishes tight, random packing of" + " samples by placing new samples within a distance (2r)" + " of an existing sample, while also ensuring that the sample isn't" + " within distance (r) of any other.  This demo implements such a" + " sample using Bridson's algorithm.  In this algorithm, each new sample" + " is added to a list of active samples.  For each new sample to be drawn," + " an existing sample is selected at random from this list, and from this" + " reference point, new candidates are drawn at random within a circular annulus" + " between r and 2r of this point.  If a new candidate also isn't within" + " r distance of any other point, it becomes a sample and is added to the active list." + " In order to significantly reduce the search for potential conflicts, " + " a reference grid is used to store all sample points." + " If a specified number of candidates have been drawn from the reference point" + " without a valid one being found, the reference point is removed from the active samples " + " list.  The algorithm concludes once the active samples list is empty.";
+    var demoSample = new _poisson_disc_generator2.default(400, 600, 10, 20);
+    return _possibleConstructorReturn(this, (PoissonDescContainer.__proto__ || Object.getPrototypeOf(PoissonDescContainer)).call(this, title, description, demoSample));
+  }
+
+  return PoissonDescContainer;
+}(_algo_desc_container2.default);
+
+exports.default = PoissonDescContainer;
+
+/***/ }),
+/* 516 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _algo_desc_container = __webpack_require__(519);
+
+var _algo_desc_container2 = _interopRequireDefault(_algo_desc_container);
+
+var _best_candidate_disc_generator = __webpack_require__(91);
+
+var _best_candidate_disc_generator2 = _interopRequireDefault(_best_candidate_disc_generator);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var BestCandDescContainer = function (_AlgoDescContainer) {
+  _inherits(BestCandDescContainer, _AlgoDescContainer);
+
+  function BestCandDescContainer() {
+    _classCallCheck(this, BestCandDescContainer);
+
+    var title = "Mitchell's Best Candidate";
+    var description = "For each new sample placed, the best candidate" + " algorithm draws a specified number of candidates" + " at random, and selects the candidate with the largest" + " distance from existing samples." + " The algorithm yields a more even distribution" + " of samples than a uniform random distribution, but this" + " comes at the cost of having to check nearest neighbor distance" + " for each candidate.  For quicker determination of nearest neighbor" + " this implementation leverages a quadtree.";
+    var demoSample = new _best_candidate_disc_generator2.default(400, 600, 100, 10);
+    return _possibleConstructorReturn(this, (BestCandDescContainer.__proto__ || Object.getPrototypeOf(BestCandDescContainer)).call(this, title, description, demoSample));
+  }
+
+  return BestCandDescContainer;
+}(_algo_desc_container2.default);
+
+exports.default = BestCandDescContainer;
+
+/***/ }),
+/* 517 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _algo_desc_container = __webpack_require__(519);
+
+var _algo_desc_container2 = _interopRequireDefault(_algo_desc_container);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var UniformRandomDescContainer = function (_AlgoDescContainer) {
+  _inherits(UniformRandomDescContainer, _AlgoDescContainer);
+
+  function UniformRandomDescContainer() {
+    _classCallCheck(this, UniformRandomDescContainer);
+
+    var title = "Uniform Random";
+    var description = "With a uniform random sample, new samples" + " are generated at random within" + " the specified dimensions";
+    return _possibleConstructorReturn(this, (UniformRandomDescContainer.__proto__ || Object.getPrototypeOf(UniformRandomDescContainer)).call(this, title, description));
+  }
+
+  return UniformRandomDescContainer;
+}(_algo_desc_container2.default);
+
+exports.default = UniformRandomDescContainer;
+
+/***/ }),
+/* 518 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _algo_desc_container = __webpack_require__(519);
+
+var _algo_desc_container2 = _interopRequireDefault(_algo_desc_container);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var UniformDescContainer = function (_AlgoDescContainer) {
+  _inherits(UniformDescContainer, _AlgoDescContainer);
+
+  function UniformDescContainer() {
+    _classCallCheck(this, UniformDescContainer);
+
+    var title = "Grid";
+    var description = "With a standard grid formation, points" + " are simply generated at a fixed distance and angle" + " from existing points.  This is perhaps the most straightforward" + " distribution, but these strict patterns can often clash" + " and create an aliasing effect";
+    return _possibleConstructorReturn(this, (UniformDescContainer.__proto__ || Object.getPrototypeOf(UniformDescContainer)).call(this, title, description));
+  }
+
+  return UniformDescContainer;
+}(_algo_desc_container2.default);
+
+exports.default = UniformDescContainer;
+
+/***/ }),
+/* 519 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var AlgoDescContainer = function () {
+  function AlgoDescContainer(title, description, demoSample) {
+    _classCallCheck(this, AlgoDescContainer);
+
+    this.title = title;
+    this.description = description;
+    this.demoSample = demoSample;
+  }
+
+  _createClass(AlgoDescContainer, [{
+    key: "render",
+    value: function render() {
+      var descContainer = document.getElementById("desc-container");
+      while (descContainer.firstChild) {
+        descContainer.removeChild(descContainer.firstChild);
+      }
+      var htmlTitle = document.createElement("h3");
+      htmlTitle.innerHTML = this.title;
+      descContainer.appendChild(htmlTitle);
+      var htmlDesc = document.createElement("p");
+      htmlDesc.innerHTML = this.description;
+      descContainer.appendChild(htmlDesc);
+      if (this.demoSample) {
+        var demoCanvas = document.createElement("canvas");
+        demoCanvas.height = this.demoSample.canvasHeight;
+        demoCanvas.width = this.demoSample.canvasWidth;
+        descContainer.appendChild(demoCanvas);
+        this.demoSample.demo(demoCanvas);
+      }
+    }
+  }]);
+
+  return AlgoDescContainer;
+}();
+
+exports.default = AlgoDescContainer;
 
 /***/ })
 /******/ ]);

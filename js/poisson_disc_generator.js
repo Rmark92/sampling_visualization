@@ -59,9 +59,9 @@ export default class poissonSample {
 
   isInRange(point) {
     return (point.coords[0] > 0 &&
-            point.coords[0] < this.canvasHeight &&
+            point.coords[0] < this.canvasWidth &&
             point.coords[1] > 0 &&
-            point.coords[1] < this.canvasWidth);
+            point.coords[1] < this.canvasHeight);
   }
 
   // isInRange(point) {
