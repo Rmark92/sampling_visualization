@@ -13,6 +13,20 @@ function getImageOptions() {
   return Array.from(document.getElementsByClassName('image-selection'));
 }
 
+// updateFile(type) {
+//   return (event) => {
+//     const file = event.currentTarget.files[0];
+//     const fileReader = new FileReader();
+//     fileReader.onloadend = function () {
+//       this.setState({ [type + 'File']: file, [type + 'URL']: fileReader.result });
+//     }.bind(this);
+//
+//     if (file) {
+//       fileReader.readAsDataURL(file);
+//     }
+//   };
+// }
+
 document.addEventListener("DOMContentLoaded", () => {
   const img = new Image();
   img.src = 'images/afremov.jpg';
@@ -22,6 +36,25 @@ document.addEventListener("DOMContentLoaded", () => {
       img.src = event.target.src;
     });
   });
+
+  const imageUploadInput = document.getElementById('image-file-input');
+  const imageUploadImage = document.getElementById('user-image');
+  // imageUploadInput.addEventListener('click', (event) => event.stopPropagation() );
+  let fileReader;
+  let file;
+  imageUploadInput.addEventListener('change', (event) => {
+    file = event.target.files[0];
+    fileReader = new FileReader();
+
+    fileReader.onloadend = () => {
+      imageUploadImage.src = fileReader.result;
+    };
+
+    if (file) {
+      fileReader.readAsDataURL(file);
+    }
+  });
+
   img.onload = () => {
     const imgCanvas = document.getElementById("image-canvas");
     const imgContext = imgCanvas.getContext('2d');

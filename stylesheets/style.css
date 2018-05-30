@@ -8,17 +8,68 @@ h1, h3 {
   font-family: 'Oxygen Mono', monospace;
 }
 
-#image-selections img {
-  height: 180px;
-  width: 180px;
+.image-list {
+  display: flex;
+  width: 510px;
+  justify-content: space-evenly;
 }
+
+.image-list > * {
+  height: 150px;
+  width: 150px;
+}
+
+#user-image {
+  height: 100%;
+  width: 100%;
+}
+
+#image-file-input-label {
+  position: absolute;
+  background-color: white;
+  top: 120px;
+  left: 17px;
+  border: 1px solid #00000082;
+  border-radius: 2px;
+  padding: 2px 3px 2px 3px;
+}
+
+#image-file-input-label:hover {
+  cursor: pointer;
+}
+
+#image-file-input {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.user-upload-image {
+  position: relative;
+}
+
+
 
 .original-images {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
+  height: 400px;
 }
 
+img {
+  border: 1px solid #463f3f59;
+}
+
+#image-selections {
+  display: flex;
+  flex-direction: column;
+  height: 340px;
+  justify-content: space-evenly;
+}
 
 #sampled-canvases {
   display: flex;

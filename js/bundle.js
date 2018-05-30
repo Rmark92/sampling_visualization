@@ -10840,6 +10840,20 @@ function getImageOptions() {
   return Array.from(document.getElementsByClassName('image-selection'));
 }
 
+// updateFile(type) {
+//   return (event) => {
+//     const file = event.currentTarget.files[0];
+//     const fileReader = new FileReader();
+//     fileReader.onloadend = function () {
+//       this.setState({ [type + 'File']: file, [type + 'URL']: fileReader.result });
+//     }.bind(this);
+//
+//     if (file) {
+//       fileReader.readAsDataURL(file);
+//     }
+//   };
+// }
+
 document.addEventListener("DOMContentLoaded", function () {
   var img = new Image();
   img.src = 'images/afremov.jpg';
@@ -10849,6 +10863,25 @@ document.addEventListener("DOMContentLoaded", function () {
       img.src = event.target.src;
     });
   });
+
+  var imageUploadInput = document.getElementById('image-file-input');
+  var imageUploadImage = document.getElementById('user-image');
+  // imageUploadInput.addEventListener('click', (event) => event.stopPropagation() );
+  var fileReader = void 0;
+  var file = void 0;
+  imageUploadInput.addEventListener('change', function (event) {
+    file = event.target.files[0];
+    fileReader = new FileReader();
+
+    fileReader.onloadend = function () {
+      imageUploadImage.src = fileReader.result;
+    };
+
+    if (file) {
+      fileReader.readAsDataURL(file);
+    }
+  });
+
   img.onload = function () {
     var imgCanvas = document.getElementById("image-canvas");
     var imgContext = imgCanvas.getContext('2d');
