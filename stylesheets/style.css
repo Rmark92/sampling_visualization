@@ -1,3 +1,25 @@
+body {
+  font-family: 'Cutive Mono', monospace;
+  /* font-family: 'Anonymous Pro', monospace; */
+
+}
+
+h1, h3 {
+  font-family: 'Oxygen Mono', monospace;
+}
+
+#image-selections img {
+  height: 180px;
+  width: 180px;
+}
+
+.original-images {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+
 #sampled-canvases {
   display: flex;
   align-items: center;
@@ -10,6 +32,10 @@
   align-items: center;
   margin-left: 10px;
   margin-right: 10px;
+}
+
+canvas {
+  border: 1px solid black;
 }
 /*
 #sampled-canvases p {

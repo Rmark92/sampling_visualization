@@ -19,7 +19,7 @@ export default class PoissonDescContainer extends AlgoDescContainer {
                        " If a specified number of candidates have been drawn from the reference point" +
                        " without a valid one being found, the reference point is removed from the active samples " +
                        " list.  The algorithm concludes once the active samples list is empty.";
-    const demoSample = new PoissonSample(400, 600, 10, 20);
+    const demoSample = new PoissonSample(400, 600, 20, 20);
     super(title, description, demoSample);
   }
 }

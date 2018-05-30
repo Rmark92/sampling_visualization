@@ -5487,8 +5487,8 @@ var poissonSample = function () {
     value: function pointToGridCoords(coords) {
       var rowIdx = void 0;
       var colIdx = void 0;
-      rowIdx = Math.floor(coords[0] / this.cellSize);
-      colIdx = Math.floor(coords[1] / this.cellSize);
+      rowIdx = Math.floor(coords[1] / this.cellSize);
+      colIdx = Math.floor(coords[0] / this.cellSize);
       return [rowIdx, colIdx];
     }
   }, {
@@ -5552,8 +5552,8 @@ var poissonSample = function () {
 
       var rowIdxMin = Math.max(0, rowIdx - 1);
       var colIdxMin = Math.max(0, colIdx - 1);
-      var rowIdxMax = Math.min(this.gridWidth - 1, rowIdx + 1);
-      var colIdxMax = Math.min(this.gridHeight - 1, colIdx + 1);
+      var colIdxMax = Math.min(this.gridWidth - 1, colIdx + 1);
+      var rowIdxMax = Math.min(this.gridHeight - 1, rowIdx + 1);
 
       for (rowIdx = rowIdxMin; rowIdx <= rowIdxMax; rowIdx++) {
         for (colIdx = colIdxMin; colIdx <= colIdxMax; colIdx++) {
@@ -5571,7 +5571,7 @@ var poissonSample = function () {
 
       this.points.forEach(function (point) {
         _this.context.beginPath();
-        _this.context.arc(point.coords[0], point.coords[1], 4, 0, 2 * Math.PI);
+        _this.context.arc(point.coords[0], point.coords[1], (_this.radius - 1) / 3, 0, 2 * Math.PI);
         _this.context.lineWidth = 1;
         // this.context.strokeStyle = "black";
         _this.context.fillStyle = "#353638";
@@ -5586,7 +5586,7 @@ var poissonSample = function () {
 
       this.activePoints.forEach(function (point) {
         _this2.context.beginPath();
-        _this2.context.arc(point.coords[0], point.coords[1], 4, 0, 2 * Math.PI);
+        _this2.context.arc(point.coords[0], point.coords[1], (_this2.radius - 1) / 3, 0, 2 * Math.PI);
         _this2.context.lineWidth = 1;
         // this.context.strokeStyle = "black";
         _this2.context.fillStyle = "#2f89ef";
@@ -5598,7 +5598,7 @@ var poissonSample = function () {
     key: "drawCandidate",
     value: function drawCandidate(candidate) {
       this.context.beginPath();
-      this.context.arc(candidate.coords[0], candidate.coords[1], 4, 0, 2 * Math.PI);
+      this.context.arc(candidate.coords[0], candidate.coords[1], (this.radius - 1) / 3, 0, 2 * Math.PI);
       this.context.lineWidth = 1;
       this.context.strokeStyle = "black";
       this.context.stroke();
@@ -5609,7 +5609,7 @@ var poissonSample = function () {
     key: "drawRefPoint",
     value: function drawRefPoint(refPoint) {
       this.context.beginPath();
-      this.context.arc(refPoint.coords[0], refPoint.coords[1], 4, 0, 2 * Math.PI);
+      this.context.arc(refPoint.coords[0], refPoint.coords[1], (this.radius - 1) / 3, 0, 2 * Math.PI);
       this.context.lineWidth = 5;
       // this.context.strokeStyle = "black";
       this.context.fillStyle = "#fb3c3c";
@@ -5619,7 +5619,7 @@ var poissonSample = function () {
     key: "drawChoiceCandidate",
     value: function drawChoiceCandidate(candidate) {
       this.context.beginPath();
-      this.context.arc(candidate.coords[0], candidate.coords[1], 4, 0, 2 * Math.PI);
+      this.context.arc(candidate.coords[0], candidate.coords[1], (this.radius - 1) / 3, 0, 2 * Math.PI);
       this.context.lineWidth = 1;
       // this.context.strokeStyle = "black";
       this.context.fillStyle = "#08da88";
@@ -10836,9 +10836,19 @@ var _uniform_desc_container2 = _interopRequireDefault(_uniform_desc_container);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function getImageOptions() {
+  return Array.from(document.getElementsByClassName('image-selection'));
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   var img = new Image();
   img.src = 'images/afremov.jpg';
+
+  getImageOptions().forEach(function (imgSelection) {
+    imgSelection.addEventListener('click', function (event) {
+      img.src = event.target.src;
+    });
+  });
   img.onload = function () {
     var imgCanvas = document.getElementById("image-canvas");
     var imgContext = imgCanvas.getContext('2d');
@@ -25752,7 +25762,7 @@ var PoissonDescContainer = function (_AlgoDescContainer) {
 
     var title = "Poisson Disc Sampling";
     var description = "A poisson disc sample accomplishes tight, random packing of" + " samples by placing new samples within a distance (2r)" + " of an existing sample, while also ensuring that the sample isn't" + " within distance (r) of any other.  This demo implements such a" + " sample using Bridson's algorithm.  In this algorithm, each new sample" + " is added to a list of active samples.  For each new sample to be drawn," + " an existing sample is selected at random from this list, and from this" + " reference point, new candidates are drawn at random within a circular annulus" + " between r and 2r of this point.  If a new candidate also isn't within" + " r distance of any other point, it becomes a sample and is added to the active list." + " In order to significantly reduce the search for potential conflicts, " + " a reference grid is used to store all sample points." + " If a specified number of candidates have been drawn from the reference point" + " without a valid one being found, the reference point is removed from the active samples " + " list.  The algorithm concludes once the active samples list is empty.";
-    var demoSample = new _poisson_disc_generator2.default(400, 600, 10, 20);
+    var demoSample = new _poisson_disc_generator2.default(400, 600, 20, 20);
     return _possibleConstructorReturn(this, (PoissonDescContainer.__proto__ || Object.getPrototypeOf(PoissonDescContainer)).call(this, title, description, demoSample));
   }
 

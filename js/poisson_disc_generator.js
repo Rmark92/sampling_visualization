@@ -31,8 +31,8 @@ export default class poissonSample {
   pointToGridCoords(coords) {
     let rowIdx;
     let colIdx;
-    rowIdx = Math.floor(coords[0] / this.cellSize);
-    colIdx = Math.floor(coords[1] / this.cellSize);
+    rowIdx = Math.floor(coords[1] / this.cellSize);
+    colIdx = Math.floor(coords[0] / this.cellSize);
     return [rowIdx, colIdx];
   }
 
@@ -78,8 +78,8 @@ export default class poissonSample {
     [rowIdx, colIdx] = this.pointToGridCoords(point.coords);
     const rowIdxMin = Math.max(0, rowIdx - 1);
     const colIdxMin = Math.max(0, colIdx - 1);
-    const rowIdxMax = Math.min(this.gridWidth - 1, rowIdx + 1);
-    const colIdxMax = Math.min(this.gridHeight - 1, colIdx + 1);
+    const colIdxMax = Math.min(this.gridWidth - 1, colIdx + 1);
+    const rowIdxMax = Math.min(this.gridHeight - 1, rowIdx + 1);
 
     for (rowIdx = rowIdxMin; rowIdx <= rowIdxMax; rowIdx++) {
       for (colIdx = colIdxMin; colIdx <= colIdxMax; colIdx++) {
@@ -94,7 +94,7 @@ export default class poissonSample {
   drawPoints() {
     this.points.forEach( point=> {
       this.context.beginPath();
-      this.context.arc(point.coords[0], point.coords[1], 4, 0, 2*Math.PI);
+      this.context.arc(point.coords[0], point.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
       this.context.lineWidth = 1;
       // this.context.strokeStyle = "black";
       this.context.fillStyle = "#353638";
@@ -106,7 +106,7 @@ export default class poissonSample {
   drawActives() {
     this.activePoints.forEach( point=> {
       this.context.beginPath();
-      this.context.arc(point.coords[0], point.coords[1], 4, 0, 2*Math.PI);
+      this.context.arc(point.coords[0], point.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
       this.context.lineWidth = 1;
       // this.context.strokeStyle = "black";
       this.context.fillStyle = "#2f89ef";
@@ -117,7 +117,7 @@ export default class poissonSample {
 
   drawCandidate(candidate) {
     this.context.beginPath();
-    this.context.arc(candidate.coords[0], candidate.coords[1], 4, 0, 2*Math.PI);
+    this.context.arc(candidate.coords[0], candidate.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
     this.context.lineWidth = 1;
     this.context.strokeStyle = "black";
     this.context.stroke();
@@ -127,7 +127,7 @@ export default class poissonSample {
 
   drawRefPoint(refPoint) {
     this.context.beginPath();
-    this.context.arc(refPoint.coords[0], refPoint.coords[1], 4, 0, 2*Math.PI);
+    this.context.arc(refPoint.coords[0], refPoint.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
     this.context.lineWidth = 5;
     // this.context.strokeStyle = "black";
     this.context.fillStyle = "#fb3c3c";
@@ -136,7 +136,7 @@ export default class poissonSample {
 
   drawChoiceCandidate(candidate) {
     this.context.beginPath();
-    this.context.arc(candidate.coords[0], candidate.coords[1], 4, 0, 2*Math.PI);
+    this.context.arc(candidate.coords[0], candidate.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
     this.context.lineWidth = 1;
     // this.context.strokeStyle = "black";
     this.context.fillStyle = "#08da88";
@@ -186,7 +186,7 @@ export default class poissonSample {
   demo(canvas) {
     this.reset();
     const p0 = { coords: [Math.round(Math.random() * this.canvasWidth),
-                          Math.round(Math.random() * this.canvasHeight)],
+                          Math.round(Math.random() * this.canvasHeight)]
                };
 
     this.insert(p0);
@@ -200,7 +200,7 @@ export default class poissonSample {
   load() {
     this.reset();
     const p0 = { coords: [Math.round(Math.random() * this.canvasWidth),
-                          Math.round(Math.random() * this.canvasHeight)],
+                          Math.round(Math.random() * this.canvasHeight)]
                };
     this.insert(p0, null);
 

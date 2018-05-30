@@ -2,12 +2,30 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Oxygen+Mono|Cutive+Mono" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro" rel="stylesheet"> -->
+    <!-- <link href="https://fonts.googleapis.com/css?family=Oxygen+Mono" rel="stylesheet"> -->
+
     <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
     <script language="javascript" type="text/javascript" src="./js/bundle.js"></script>
     <title></title>
   </head>
   <body>
-    <canvas id="image-canvas" width="400" height="400"></canvas>
+    <h1>Free Samples (?) </h1>
+    <div class="original-images">
+      <canvas id="image-canvas" width="400" height="400"></canvas>
+      <div id="image-selections">
+        <div class="image-list">
+          <img class="image-selection" src="images/afremov.jpg"/>
+          <img class="image-selection" src="images/starry_night.jpg"/>
+          <img class="image-selection" src="images/camille-pissarro.jpg"/>
+        </div>
+        <div class="image-list">
+          <img class="image-selection" src="images/monet_saint_georges.jpg"/>
+          <img class="image-selection" src="images/sun.jpg"/>
+        </div>
+      </div>
+    </div>
     <div id="distribution-selection-options">
       <button value="poisson" type="submit">Poisson</button>
       <button value="best-candidate" type="submit">Best Candidate</button>

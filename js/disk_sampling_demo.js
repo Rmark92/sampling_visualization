@@ -9,9 +9,19 @@ import BestCandDescContainer from './best_cand_desc_container';
 import UniformRandomDescContainer from './uniform_rand_desc_container';
 import UniformDescContainer from './uniform_desc_container';
 
+function getImageOptions() {
+  return Array.from(document.getElementsByClassName('image-selection'));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const img = new Image();
   img.src = 'images/afremov.jpg';
+
+  getImageOptions().forEach( imgSelection => {
+    imgSelection.addEventListener('click', (event) => {
+      img.src = event.target.src;
+    });
+  });
   img.onload = () => {
     const imgCanvas = document.getElementById("image-canvas");
     const imgContext = imgCanvas.getContext('2d');
