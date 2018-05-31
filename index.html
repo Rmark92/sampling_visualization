@@ -12,41 +12,49 @@
   </head>
   <body>
     <h1>Free Samples (?) </h1>
-    <div class="original-images">
-      <canvas id="image-canvas" width="400" height="400"></canvas>
-      <div id="image-selections">
-        <div class="image-list">
-          <img class="image-selection" src="images/afremov.jpg"/>
-          <img class="image-selection" src="images/starry_night.jpg"/>
-          <img class="image-selection" src="images/camille-pissarro.jpg"/>
-        </div>
-        <div class="image-list">
-          <img class="image-selection" src="images/monet_saint_georges.jpg"/>
-          <img class="image-selection" src="images/sun.jpg"/>
-          <div class="user-upload-image">
-            <label for="image-file-input" id="image-file-input-label">Upload Image</label>
-            <input id="image-file-input" type="file" class="inputfile"></input>
-            <img class="image-selection" id="user-image" src="images/the_zuck.jpg"/>
+    <main>
+      <div class="original-images">
+        <canvas id="image-canvas" width="400" height="400"></canvas>
+        <div class="selections">
+          <div id="image-selections">
+            <h3>Select an image</h3>
+            <div class="image-list">
+              <img class="image-selection" src="images/afremov.jpg"/>
+              <img class="image-selection" src="images/starry_night.jpg"/>
+              <img class="image-selection" src="images/camille-pissarro.jpg"/>
+            </div>
+            <div class="image-list">
+              <img class="image-selection" src="images/monet_saint_georges.jpg"/>
+              <img class="image-selection" src="images/sun.jpg"/>
+              <div class="user-upload-image">
+                <label for="image-file-input" id="image-file-input-label">Upload Image</label>
+                <input id="image-file-input" type="file" class="inputfile"></input>
+                <img class="image-selection" id="user-image" src="images/the_zuck.jpg"/>
+              </div>
+            </div>
+          </div>
+          <div id="distribution-selection">
+            <h3>Select a distribution</h3>
+            <div id="distribution-selection-options">
+              <button value="poisson" type="submit">Poisson</button>
+              <button value="best-candidate" type="submit">Best Candidate</button>
+              <button value="uniform-random" type="submit">Uniform Random</button>
+              <button value="uniform" type="submit">Uniform</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div id="distribution-selection-options">
-      <button value="poisson" type="submit">Poisson</button>
-      <button value="best-candidate" type="submit">Best Candidate</button>
-      <button value="uniform-random" type="submit">Uniform Random</button>
-      <button value="uniform" type="submit">Uniform</button>
-    </div>
-    <!-- <form id="distribution-selection-form">
-      <select id="dist-type-options">
-        <option value="poisson">Poisson</option>
-        <option value="best-candidate">Best Candidate</option>
-        <option value="uniform-random">Uniform Random</option>
-        <option value="uniform">Uniform</option>
-      </select>
-      <button type="submit">Load</button>
-    </form> -->
-    <div id="sampled-canvases"></div>
-    <div id="desc-container"></div>
+      <!-- <form id="distribution-selection-form">
+        <select id="dist-type-options">
+          <option value="poisson">Poisson</option>
+          <option value="best-candidate">Best Candidate</option>
+          <option value="uniform-random">Uniform Random</option>
+          <option value="uniform">Uniform</option>
+        </select>
+        <button type="submit">Load</button>
+      </form> -->
+      <div id="sampled-canvases"></div>
+      <div id="desc-container"></div>
+    </main>
   </body>
 </html>
