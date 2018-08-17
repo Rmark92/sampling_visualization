@@ -1,8 +1,6 @@
 export default class MapCanvasContainer {
   constructor(height, width, mapType) {
     this.htmlContainer = document.createElement("div");
-    // this.htmlContainer.height = height + 50;
-    // this.htmlContainer.width = width + 50;
     this.title = document.createElement("h3");
     this.title.innerHTML = "Generation Map";
     this.htmlContainer.appendChild(this.title);

@@ -55,9 +55,7 @@ export default class BestCandidateSample {
       this.context.beginPath();
       this.context.arc(point.coords[0], point.coords[1], 4, 0, 2*Math.PI);
       this.context.lineWidth = 1;
-      // this.context.strokeStyle = "black";
       this.context.fillStyle = "#2f89ef";
-      // this.context.stroke();
       this.context.fill();
     });
   }
@@ -68,8 +66,6 @@ export default class BestCandidateSample {
     this.context.lineWidth = 1;
     this.context.strokeStyle = "black";
     this.context.stroke();
-    // this.context.fillStyle = "#f3b414";
-    // this.context.fill();
   }
 
   colorBest(bestCand) {

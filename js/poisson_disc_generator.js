@@ -1,7 +1,5 @@
 export default class poissonSample {
   constructor(maxHeight, maxWidth, radius, maxCandidates) {
-    // this.canvas = canvas;
-    // this.context = canvas.getContext('2d');
     this.cellSize = Math.floor(radius / Math.sqrt(2));
     this.maxCandidates = maxCandidates;
     this.radius = radius;
@@ -47,11 +45,6 @@ export default class poissonSample {
     this.numPoints += 1;
   }
 
-  // distance(pointA, pointB) {
-  //   const squaredDist = Math.pow((pointA[0] - pointB[0]), 2) + Math.pow((pointA[1] - pointB[1]), 2)
-  //   return Math.sqrt(squaredDist);
-  // }
-
   distance(pointA, pointB) {
     const squaredDist = Math.pow((pointA.coords[0] - pointB.coords[0]), 2) + Math.pow((pointA.coords[1] - pointB.coords[1]), 2);
     return Math.sqrt(squaredDist);
@@ -63,13 +56,6 @@ export default class poissonSample {
             point.coords[1] > 0 &&
             point.coords[1] < this.canvasHeight);
   }
-
-  // isInRange(point) {
-  //   return (point[0] > 0 &&
-  //           point[0] < this.canvasHeight &&
-  //           point[1] > 0 &&
-  //           point[1] < this.canvasWidth);
-  // }
 
   isValidPoint(point) {
     let rowIdx;
@@ -96,9 +82,7 @@ export default class poissonSample {
       this.context.beginPath();
       this.context.arc(point.coords[0], point.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
       this.context.lineWidth = 1;
-      // this.context.strokeStyle = "black";
       this.context.fillStyle = "#353638";
-      // this.context.stroke();
       this.context.fill();
     });
   }
@@ -108,9 +92,7 @@ export default class poissonSample {
       this.context.beginPath();
       this.context.arc(point.coords[0], point.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
       this.context.lineWidth = 1;
-      // this.context.strokeStyle = "black";
       this.context.fillStyle = "#2f89ef";
-      // this.context.stroke();
       this.context.fill();
     });
   }
@@ -121,15 +103,12 @@ export default class poissonSample {
     this.context.lineWidth = 1;
     this.context.strokeStyle = "black";
     this.context.stroke();
-    // this.context.fillStyle = "#f3b414";
-    // this.context.fill();
   }
 
   drawRefPoint(refPoint) {
     this.context.beginPath();
     this.context.arc(refPoint.coords[0], refPoint.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
     this.context.lineWidth = 5;
-    // this.context.strokeStyle = "black";
     this.context.fillStyle = "#fb3c3c";
     this.context.fill();
   }
@@ -138,9 +117,7 @@ export default class poissonSample {
     this.context.beginPath();
     this.context.arc(candidate.coords[0], candidate.coords[1], (this.radius - 1) / 3, 0, 2*Math.PI);
     this.context.lineWidth = 1;
-    // this.context.strokeStyle = "black";
     this.context.fillStyle = "#08da88";
-    // this.context.stroke();
     this.context.fill();
   }
 

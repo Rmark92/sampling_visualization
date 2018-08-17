@@ -1,9 +1,8 @@
-import renderImages from './image_renderer';
 import PoissonSample from './poisson_disc_generator';
 import BestCandidateSample from './best_candidate_disc_generator';
 import UniformRandomSample from './random_disc_generator';
 import UniformSample from './uniform_disc_generator';
-import ImageRenderer from './image_renderer2';
+import ImageRenderer from './image_renderer';
 import PoissonDescContainer from './poisson_desc_container';
 import BestCandDescContainer from './best_cand_desc_container';
 import UniformRandomDescContainer from './uniform_rand_desc_container';
@@ -12,20 +11,6 @@ import UniformDescContainer from './uniform_desc_container';
 function getImageOptions() {
   return Array.from(document.getElementsByClassName('image-selection'));
 }
-
-// updateFile(type) {
-//   return (event) => {
-//     const file = event.currentTarget.files[0];
-//     const fileReader = new FileReader();
-//     fileReader.onloadend = function () {
-//       this.setState({ [type + 'File']: file, [type + 'URL']: fileReader.result });
-//     }.bind(this);
-//
-//     if (file) {
-//       fileReader.readAsDataURL(file);
-//     }
-//   };
-// }
 
 document.addEventListener("DOMContentLoaded", () => {
   const img = new Image();
@@ -39,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const imageUploadInput = document.getElementById('image-file-input');
   const imageUploadImage = document.getElementById('user-image');
-  // imageUploadInput.addEventListener('click', (event) => event.stopPropagation() );
   let fileReader;
   let file;
   imageUploadInput.addEventListener('change', (event) => {
@@ -71,15 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let distType;
     const distSelectOptions = document.getElementById("distribution-selection-options");
-    // const distSelectList = document.getElementById("dist-type-options");
     Array.from(distSelectOptions.children).forEach(child => {
       child.addEventListener("click", (event) => {
         event.preventDefault();
         renderSampledImages(event.target.value);
-        // debugger;
       });
-      // distType = distSelectList.options[distSelectList.selectedIndex].value;
-      // renderSampledImages(distType);
     });
 
     function renderSampledImages(type) {
@@ -90,25 +70,21 @@ document.addEventListener("DOMContentLoaded", () => {
         imageRenderer.render(points, 'poisson');
         (new PoissonDescContainer).render();
         break;
-        // return poissonPoints;
       case "best-candidate":
         points = bestCandidate.load();
         imageRenderer.render(points, 'best-candidate');
         (new BestCandDescContainer).render();
         break;
-        // return bestCandidate.load();
       case "uniform-random":
         points = randomSample.load();
         imageRenderer.render(points);
         (new UniformRandomDescContainer).render();
         break;
-        // uniformRandomSample.load();
       case "uniform":
         points = uniform.load();
         imageRenderer.render(points);
         (new UniformDescContainer).render();
         break;
-        // return uniform.load();
       }
     }
   };
