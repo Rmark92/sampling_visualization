@@ -1,5 +1,5 @@
 import AlgoDescContainer from './algo_desc_container';
-import BestCandidateSample from './best_candidate_disc_generator';
+import BestCandidateSample from '../disc_generators/best_candidate_disc_generator';
 
 export default class BestCandDescContainer extends AlgoDescContainer {
   constructor() {

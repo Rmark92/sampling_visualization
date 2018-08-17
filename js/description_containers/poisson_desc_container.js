@@ -1,5 +1,5 @@
 import AlgoDescContainer from './algo_desc_container';
-import PoissonSample from './poisson_disc_generator';
+import PoissonSample from '../disc_generators/poisson_disc_generator';
 
 export default class PoissonDescContainer extends AlgoDescContainer {
   constructor() {

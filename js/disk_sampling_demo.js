@@ -1,12 +1,12 @@
-import PoissonSample from './poisson_disc_generator';
-import BestCandidateSample from './best_candidate_disc_generator';
-import UniformRandomSample from './random_disc_generator';
-import UniformSample from './uniform_disc_generator';
-import ImageRenderer from './image_renderer';
-import PoissonDescContainer from './poisson_desc_container';
-import BestCandDescContainer from './best_cand_desc_container';
-import UniformRandomDescContainer from './uniform_rand_desc_container';
-import UniformDescContainer from './uniform_desc_container';
+import PoissonSample from './disc_generators/poisson_disc_generator';
+import BestCandidateSample from './disc_generators/best_candidate_disc_generator';
+import UniformRandomSample from './disc_generators/random_disc_generator';
+import UniformSample from './disc_generators/uniform_disc_generator';
+import ImageRenderer from './canvas_containers/image_renderer';
+import PoissonDescContainer from './description_containers/poisson_desc_container';
+import BestCandDescContainer from './description_containers/best_cand_desc_container';
+import UniformRandomDescContainer from './description_containers/uniform_rand_desc_container';
+import UniformDescContainer from './description_containers/uniform_desc_container';
 
 function getImageOptions() {
   return Array.from(document.getElementsByClassName('image-selection'));
