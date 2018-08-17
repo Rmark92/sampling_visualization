@@ -15,6 +15,10 @@ function getImageOptions() {
 document.addEventListener("DOMContentLoaded", () => {
   const img = new Image();
   img.src = 'images/afremov.jpg';
+  const imgCanvas = document.getElementById("image-canvas");
+  const imgContext = imgCanvas.getContext('2d');
+  const imgHeight = imgCanvas.height;
+  const imgWidth = imgCanvas.width;
 
   getImageOptions().forEach( imgSelection => {
     imgSelection.addEventListener('click', (event) => {
@@ -39,53 +43,72 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  img.onload = () => {
-    const imgCanvas = document.getElementById("image-canvas");
-    const imgContext = imgCanvas.getContext('2d');
-    const height = imgCanvas.height;
-    const width = imgCanvas.width;
-    imgContext.drawImage(img, 0, 0, height, width);
+  const distSelectOptions = document.getElementById("distribution-selection-options").children;
+  let selectedDistType = 'poisson';
 
-    const poisson = new PoissonSample(height, width, 3, 20);
-    let poissonPoints = poisson.load();
-    const bestCandidate = new BestCandidateSample(height, width, poissonPoints.length, 10);
-    const randomSample = new UniformRandomSample(height, width, poissonPoints.length);
-    const uniform = new UniformSample(height, width, 5);
-    const imageRenderer = new ImageRenderer(imgCanvas, height, width, 4);
+  // since a different number of poisson points is generated each time,
+  // we'll need a reference to this number so we can ensure the other algorithms
+  // generate the same number of points for accurate comparison
+  let poisson;
+  let poissonPoints;
+  const resetPoisson = () => {
+    poisson = new PoissonSample(imgHeight, imgWidth, 3, 20);
+    poissonPoints = poisson.load();
+  };
 
-    let distType;
-    const distSelectOptions = document.getElementById("distribution-selection-options");
-    Array.from(distSelectOptions.children).forEach(child => {
-      child.addEventListener("click", (event) => {
-        event.preventDefault();
-        renderSampledImages(event.target.value);
-      });
+  Array.from(distSelectOptions).forEach(optionBtn => {
+    optionBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      setSelectedDist(event.target.value);
+    });
+  });
+
+  const setSelectedDist = (type) => {
+    Array.from(distSelectOptions).forEach(optionBtn => {
+      if (optionBtn.value !== type) {
+        optionBtn.classList.remove("selected-dist");
+      } else {
+        optionBtn.classList.add("selected-dist");
+      }
     });
 
-    function renderSampledImages(type) {
-      let points;
-      switch(type) {
+    if (type === 'poisson') resetPoisson();
+    selectedDistType = type;
+    renderSampledImages(type);
+  };
+
+  function renderSampledImages(type) {
+    const imageRenderer = new ImageRenderer(imgCanvas, imgHeight, imgWidth, 4);
+    let points;
+    switch(type) {
       case "poisson":
-        points = poisson.load();
-        imageRenderer.render(points, 'poisson');
+        imageRenderer.render(poissonPoints, 'poisson');
         (new PoissonDescContainer).render();
         break;
       case "best-candidate":
+        const bestCandidate = new BestCandidateSample(imgHeight, imgWidth, poissonPoints.length, 10);
         points = bestCandidate.load();
         imageRenderer.render(points, 'best-candidate');
         (new BestCandDescContainer).render();
         break;
       case "uniform-random":
+        const randomSample = new UniformRandomSample(imgHeight, imgWidth, poissonPoints.length);
         points = randomSample.load();
         imageRenderer.render(points);
         (new UniformRandomDescContainer).render();
         break;
       case "uniform":
+        const uniform = new UniformSample(imgHeight, imgWidth, 5);
         points = uniform.load();
         imageRenderer.render(points);
         (new UniformDescContainer).render();
         break;
-      }
     }
+  }
+
+  img.onload = () => {
+    imgContext.drawImage(img, 0, 0, imgHeight, imgWidth);
+    resetPoisson();
+    renderSampledImages(selectedDistType);
   };
 });

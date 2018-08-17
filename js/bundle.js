@@ -10129,6 +10129,10 @@ function getImageOptions() {
 document.addEventListener("DOMContentLoaded", function () {
   var img = new Image();
   img.src = 'images/afremov.jpg';
+  var imgCanvas = document.getElementById("image-canvas");
+  var imgContext = imgCanvas.getContext('2d');
+  var imgHeight = imgCanvas.height;
+  var imgWidth = imgCanvas.width;
 
   getImageOptions().forEach(function (imgSelection) {
     imgSelection.addEventListener('click', function (event) {
@@ -10153,54 +10157,73 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  img.onload = function () {
-    var imgCanvas = document.getElementById("image-canvas");
-    var imgContext = imgCanvas.getContext('2d');
-    var height = imgCanvas.height;
-    var width = imgCanvas.width;
-    imgContext.drawImage(img, 0, 0, height, width);
+  var distSelectOptions = document.getElementById("distribution-selection-options").children;
+  var selectedDistType = 'poisson';
 
-    var poisson = new _poisson_disc_generator2.default(height, width, 3, 20);
-    var poissonPoints = poisson.load();
-    var bestCandidate = new _best_candidate_disc_generator2.default(height, width, poissonPoints.length, 10);
-    var randomSample = new _random_disc_generator2.default(height, width, poissonPoints.length);
-    var uniform = new _uniform_disc_generator2.default(height, width, 5);
-    var imageRenderer = new _image_renderer2.default(imgCanvas, height, width, 4);
+  // since a different number of poisson points is generated each time,
+  // we'll need a reference to this number so we can ensure the other algorithms
+  // generate the same number of points for accurate comparison
+  var poisson = void 0;
+  var poissonPoints = void 0;
+  var resetPoisson = function resetPoisson() {
+    poisson = new _poisson_disc_generator2.default(imgHeight, imgWidth, 3, 20);
+    poissonPoints = poisson.load();
+  };
 
-    var distType = void 0;
-    var distSelectOptions = document.getElementById("distribution-selection-options");
-    Array.from(distSelectOptions.children).forEach(function (child) {
-      child.addEventListener("click", function (event) {
-        event.preventDefault();
-        renderSampledImages(event.target.value);
-      });
+  Array.from(distSelectOptions).forEach(function (optionBtn) {
+    optionBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      setSelectedDist(event.target.value);
+    });
+  });
+
+  var setSelectedDist = function setSelectedDist(type) {
+    Array.from(distSelectOptions).forEach(function (optionBtn) {
+      if (optionBtn.value !== type) {
+        optionBtn.classList.remove("selected-dist");
+      } else {
+        optionBtn.classList.add("selected-dist");
+      }
     });
 
-    function renderSampledImages(type) {
-      var points = void 0;
-      switch (type) {
-        case "poisson":
-          points = poisson.load();
-          imageRenderer.render(points, 'poisson');
-          new _poisson_desc_container2.default().render();
-          break;
-        case "best-candidate":
-          points = bestCandidate.load();
-          imageRenderer.render(points, 'best-candidate');
-          new _best_cand_desc_container2.default().render();
-          break;
-        case "uniform-random":
-          points = randomSample.load();
-          imageRenderer.render(points);
-          new _uniform_rand_desc_container2.default().render();
-          break;
-        case "uniform":
-          points = uniform.load();
-          imageRenderer.render(points);
-          new _uniform_desc_container2.default().render();
-          break;
-      }
+    if (type === 'poisson') resetPoisson();
+    selectedDistType = type;
+    renderSampledImages(type);
+  };
+
+  function renderSampledImages(type) {
+    var imageRenderer = new _image_renderer2.default(imgCanvas, imgHeight, imgWidth, 4);
+    var points = void 0;
+    switch (type) {
+      case "poisson":
+        imageRenderer.render(poissonPoints, 'poisson');
+        new _poisson_desc_container2.default().render();
+        break;
+      case "best-candidate":
+        var bestCandidate = new _best_candidate_disc_generator2.default(imgHeight, imgWidth, poissonPoints.length, 10);
+        points = bestCandidate.load();
+        imageRenderer.render(points, 'best-candidate');
+        new _best_cand_desc_container2.default().render();
+        break;
+      case "uniform-random":
+        var randomSample = new _random_disc_generator2.default(imgHeight, imgWidth, poissonPoints.length);
+        points = randomSample.load();
+        imageRenderer.render(points);
+        new _uniform_rand_desc_container2.default().render();
+        break;
+      case "uniform":
+        var uniform = new _uniform_disc_generator2.default(imgHeight, imgWidth, 5);
+        points = uniform.load();
+        imageRenderer.render(points);
+        new _uniform_desc_container2.default().render();
+        break;
     }
+  }
+
+  img.onload = function () {
+    imgContext.drawImage(img, 0, 0, imgHeight, imgWidth);
+    resetPoisson();
+    renderSampledImages(selectedDistType);
   };
 });
 
