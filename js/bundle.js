@@ -10134,9 +10134,22 @@ document.addEventListener("DOMContentLoaded", function () {
   var imgHeight = imgCanvas.height;
   var imgWidth = imgCanvas.width;
 
+  var setSelectedImg = function setSelectedImg(selectedImgSrc) {
+    var classList = void 0;
+    getImageOptions().forEach(function (imgSelection) {
+      classList = imgSelection.classList;
+      if (imgSelection.src === selectedImgSrc) {
+        classList.add('selected-image');
+      } else {
+        classList.remove('selected-image');
+      }
+    });
+    img.src = selectedImgSrc;
+  };
+
   getImageOptions().forEach(function (imgSelection) {
     imgSelection.addEventListener('click', function (event) {
-      img.src = event.target.src;
+      setSelectedImg(event.target.src);
     });
   });
 
@@ -10178,11 +10191,15 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   var setSelectedDist = function setSelectedDist(type) {
+    var classList = void 0;
     Array.from(distSelectOptions).forEach(function (optionBtn) {
+      classList = optionBtn.classList;
       if (optionBtn.value !== type) {
-        optionBtn.classList.remove("selected-dist");
+        classList.remove('selected-dist');
+        classList.add('nonselected-dist');
       } else {
-        optionBtn.classList.add("selected-dist");
+        classList.add('selected-dist');
+        classList.remove('nonselected-dist');
       }
     });
 

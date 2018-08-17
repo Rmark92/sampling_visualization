@@ -20,9 +20,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const imgHeight = imgCanvas.height;
   const imgWidth = imgCanvas.width;
 
+  const setSelectedImg = (selectedImgSrc) => {
+    let classList;
+    getImageOptions().forEach( imgSelection => {
+      classList = imgSelection.classList;
+      if (imgSelection.src === selectedImgSrc) {
+        classList.add('selected-image');
+      } else {
+        classList.remove('selected-image');
+      }
+    });
+    img.src = selectedImgSrc;
+  };
+
   getImageOptions().forEach( imgSelection => {
     imgSelection.addEventListener('click', (event) => {
-      img.src = event.target.src;
+      setSelectedImg(event.target.src);
     });
   });
 
@@ -64,11 +77,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const setSelectedDist = (type) => {
+    let classList;
     Array.from(distSelectOptions).forEach(optionBtn => {
+      classList = optionBtn.classList;
       if (optionBtn.value !== type) {
-        optionBtn.classList.remove("selected-dist");
+        classList.remove('selected-dist');
+        classList.add('nonselected-dist');
       } else {
-        optionBtn.classList.add("selected-dist");
+        classList.add('selected-dist');
+        classList.remove('nonselected-dist');
       }
     });
 

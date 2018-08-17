@@ -91,6 +91,10 @@ img, canvas {
   cursor: pointer;
 }
 
+.selected-image {
+  box-shadow: 4px -4px 9px 0px #55a4e8;
+}
+
 #sampled-canvases {
   display: flex;
   align-items: center;
@@ -108,8 +112,18 @@ img, canvas {
 #distribution-selection-options > button {
     padding: 3px 6px 3px 6px;
     font-size: 14px;
-    border-radius: 4px;
+    outline: none;
     font-family: 'Oxygen Mono', monospace;
+}
+
+.selected-dist {
+  border: none;
+  border-bottom: 2px solid #0987bd;
+}
+
+.nonselected-dist {
+  border: none;
+  border-bottom: 1px solid gray;
 }
 
 #distribution-selection-options > button:hover {
