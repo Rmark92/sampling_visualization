@@ -24,9 +24,9 @@ export default class MapCanvasContainer {
         );
       case 'best-candidate':
         return (
-          "This image represents a map lines" +
-          " between each generated point and its" +
-          " nearest neighbor at the time it was created" +
+          "This image represents a graph" +
+          " where each edge connects a selected candidate" +
+          " with its nearest neighbor at the time it was chosen" +
           " (see the demo for further explanation)"
         );
     }
